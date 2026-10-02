@@ -1,0 +1,96 @@
+OSInt Tracker
+Copyright (C) 2024-2026 Andrea Cumini <andrea@osintinfo.net>
+https://www.osintinfo.net
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 3 of the License, together with the additional
+terms below.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+The full text of the GNU General Public License version 3 is in the file
+LICENSE. It is also available at <https://www.gnu.org/licenses/gpl-3.0.html>.
+
+
+ADDITIONAL TERMS (GNU GPL version 3, section 7)
+===============================================
+
+1. Attribution (section 7(b))
+
+   Every copy of this program, and every work based on it, must preserve:
+
+   (a) the copyright and license notices in the source files, and this
+       NOTICE file;
+
+   (b) the author attribution
+
+           Andrea Cumini - andrea@osintinfo.net - www.osintinfo.net
+
+       displayed in the user interface (the credits line at the top of the
+       web panel and the "About / Legal" section). This attribution is part
+       of the Appropriate Legal Notices of the program.
+
+   The attribution must remain legible. Modified versions may add their own
+   notices next to it, but may not remove, hide or alter it.
+
+2. Modified versions (section 7(c))
+
+   Modified versions must be marked in a reasonable way as different from
+   the original version, and must not misrepresent the origin of the
+   material.
+
+3. Disclaimer (sections 7(a) and 7(b))
+
+   The disclaimer of warranty and the limitation of liability in the file
+   DISCLAIMER.txt apply in addition to sections 15 and 16 of the License.
+
+   The notice that displays that text when the program starts is a legal
+   notice of this program: it must be preserved, together with the file
+   DISCLAIMER.txt, in every copy and in every work based on the program.
+
+4. Name and logo (section 7(e))
+
+   The name "OSInt Tracker", its logo and its "OT" icon (logo.svg,
+   logo-light.svg, icon.svg, osint.ico and the same artwork inside the
+   program's pages and executable) identify the original program
+   and its author. The License does not grant any right to use them as a
+   trade name, trademark or service mark: a modified version distributed
+   to others must use a different name and logo. Unmodified copies may
+   keep them.
+
+5. Additional permission: Google Maps
+
+   If you modify this Program, or any covered work, by linking or combining
+   it with the Google Maps JavaScript API (or a modified version of that
+   library), containing parts covered by the terms of the Google Maps
+   Platform Terms of Service, the licensors of this Program grant you
+   additional permission to convey the resulting work.
+
+
+CREDITS
+=======
+
+The logo and the icon are set in Panchang, a typeface by Indian Type Foundry
+(ITF), which owns its trademarks and copyright
+<https://www.fontshare.com/fonts/panchang>. They contain outlines and
+images only: the font is not distributed with this program.
+
+
+THIRD-PARTY SERVICES
+====================
+
+This application includes Google Maps features and content. Use of Google
+Maps features and content is subject to the then-current versions of the
+Google Maps/Google Earth Additional Terms of Service
+<https://maps.google.com/help/terms_maps/> and the Google Privacy Policy
+<https://policies.google.com/privacy>.
+
+Each user must supply their own Google Maps Platform API key and is
+responsible for complying with the Google Maps Platform Terms of Service
+<https://cloud.google.com/maps-platform/terms>.
+
+This project is not affiliated with, endorsed by, or sponsored by Google.
+Google Maps and Street View are trademarks of Google LLC.

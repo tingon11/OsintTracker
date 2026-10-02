@@ -1,0 +1,27 @@
+# Personal data: never distribute
+key.txt
+osint.db
+osint.db-wal
+osint.db-shm
+osint.db.old*
+launcher.log
+
+# Local environment
+.venv/
+.idea/
+__pycache__/
+*.pyc
+
+# Build output
+osint_build/
+build/
+dist/
+*.spec
+
+# Original screenshot with the Street View panorama: Google does not allow
+# publishing it. The manual uses gui-manual.png (placeholder instead of the
+# panorama)
+gui.png
+
+# Old material
+GARBAGE/

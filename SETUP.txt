@@ -1,0 +1,83 @@
+═══════════════════════════════════════════════
+   OSINT TRACKER - COMPLETE SETUP
+═══════════════════════════════════════════════
+
+INSTALLATION:
+-------------
+1. pip install -r requirements.txt
+
+2. pythonw launcher.py        (python launcher.py to keep a console)
+
+FIRST RUN:
+----------
+1. A small bar appears bottom-right (always on top, drag it by the ⋮⋮ grip)
+2. Flask starts automatically; the dot turns green when it responds
+   and the browser opens on http://127.0.0.1:5000
+   The panel first shows the terms of use and disclaimer (DISCLAIMER.txt):
+   "I accept" opens the program, "I do not accept" closes it (server and
+   launcher stop). It is asked again each time the program starts.
+3. ▶ starts the server, ■ stops it, 🌐 re-opens the browser, ✕ closes all
+4. Server output goes to launcher.log next to launcher.py
+
+NETWORK:
+--------
+The server only listens on this computer (127.0.0.1). To reach it from
+another device on your network set the environment variable HOST=0.0.0.0
+before starting: anyone on that network can then read your API key and
+your recordings.
+
+USAGE (full guide: "📖 User manual" in the panel, English / Italian):
+------
+• SESSIONS: type a name, press Enter; click a session to open it
+• START REC: in a new session the current view becomes step #1; in an
+  existing one Street View goes back to the last step and continues
+• MOVE: every new panorama is saved as a step, automatically
+• CAMERA: every step stores heading/pitch/zoom; turning the camera on
+  the spot (≥10°) adds a "↻ turn" step, replayed with a smooth rotation
+• MAP: red dot + cone = where you are and what the camera frames; the map
+  follows you; click the map to move Street View there
+• TAGS: 🏷️ on a step to add a note; ✕ deletes the step
+• PLAY ROUTE: Prev/Next (or ← →), Auto Play with speed, click a row to jump
+• STOP RECORDING: move freely without recording
+
+FEATURES:
+---------
+✓ Street View + hybrid satellite map, always in sync
+✓ Route recorded automatically, camera direction included
+✓ Tags on any step, shown on the map and during playback
+✓ Playback with animated camera turns
+✓ Separate sessions, unlimited steps
+✓ Search by address or place
+✓ Local SQLite database; API key saved on your computer
+
+FILES:
+------
+• key.txt → Google Maps API Key (persistent)
+• osint.db → Database: sessions and, for each step, the Google panorama ID,
+  the camera (heading/pitch/zoom) and your tag. Coordinates and imagery are
+  NOT stored: positions are asked to Google when a session is opened.
+  A database from an older version is set aside as osint.db.old.
+• manual.html → User manual (EN/IT), opened from the panel ("📖 User manual")
+• LICENSE, NOTICE → GNU GPL v3 with additional terms (author attribution)
+• DISCLAIMER.txt → Terms of use and disclaimer shown at startup
+
+API KEY (full walkthrough in the manual, section 3):
+--------
+1. https://console.cloud.google.com/ → create a project
+2. Billing → link a billing account to the project
+3. APIs & Services → Library → enable "Maps JavaScript API" and "Geocoding API"
+4. APIs & Services → Credentials → Create credentials → API key
+5. Restrict the key to http://127.0.0.1:5000/* and http://localhost:5000/*
+   and to the two APIs above
+6. Paste the key in the panel (first run only)
+
+BUILD (Windows executable):
+------
+pip install pyinstaller
+python build.py
+→ osint_build/dist/: OSINTTracker.exe, LICENSE, NOTICE, DISCLAIMER.txt,
+  THIRD-PARTY-NOTICES.txt
+  (distribute all five together, and make the source available: GPL)
+
+All in one integrated page!
+English interface!

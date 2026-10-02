@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manual - OSInt Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; background: #1a1a1a; color: #e5e5e5; line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 15px;
+        }
+        header {
+            position: sticky; top: 0; z-index: 10; background: #2a2a2a; border-bottom: 2px solid #3a3a3a;
+            padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        header .title { color: #fff; }
+        header .title .logo { display: block; height: 15px; width: auto; }
+        header .langs button {
+            background: #3a3a3a; color: #fff; border: none; border-radius: 4px; padding: 6px 12px;
+            font-weight: bold; cursor: pointer; font-size: 13px;
+        }
+        header .langs button.active { background: #4ade80; color: #000; }
+        main { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+        .lang { display: none; }
+        .lang.active { display: block; }
+        h1 { color: #4ade80; font-size: 26px; margin: 10px 0 4px; }
+        h2 { color: #4ade80; font-size: 19px; margin: 38px 0 10px; padding-top: 14px; border-top: 1px solid #3a3a3a; scroll-margin-top: 60px; }
+        h3 { color: #fff; font-size: 15px; margin: 22px 0 6px; }
+        p { margin: 8px 0; }
+        a { color: #4ade80; }
+        code, kbd {
+            background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; padding: 1px 6px;
+            font-family: 'Courier New', monospace; font-size: 13px; color: #fbbf24;
+        }
+        ol, ul { padding-left: 22px; margin: 8px 0; }
+        li { margin: 4px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+        th, td { border: 1px solid #3a3a3a; padding: 7px 10px; text-align: left; vertical-align: top; }
+        th { background: #2a2a2a; color: #4ade80; }
+        .note { background: #2a2a2a; border-left: 4px solid #4ade80; border-radius: 4px; padding: 10px 14px; margin: 14px 0; }
+        .warn { border-left-color: #fbbf24; }
+        .toc { background: #2a2a2a; border-radius: 6px; padding: 12px 18px; columns: 2; column-gap: 30px; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .sub { color: #999; font-size: 13px; }
+        figure { margin: 14px 0 18px; }
+        figure img { display: block; width: 100%; height: auto; border: 1px solid #3a3a3a; border-radius: 6px; }
+        figcaption { color: #999; font-size: 13px; margin-top: 6px; }
+        @media (max-width: 640px) { .toc { columns: 1; } }
+        @media print {
+            body { background: #fff; color: #000; }
+            header { display: none; }
+            h1, h2, th, a { color: #000; }
+            code, kbd, .note, .toc, th { background: #f2f2f2; color: #000; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1531.8 113.8" role="img" aria-label="OSInt Tracker" class="logo"><title>OSInt Tracker</title><path fill="currentColor" d="M81.4 112.8Q53.6 112.8 35.8 107.3Q18 101.8 9.5 90.3Q1 78.8 1 61Q1 42.9 9.5 31.5Q18 20.1 35.8 14.6Q53.6 9.1 81.4 9.1Q109.2 9.1 127 14.6Q144.7 20.1 153.2 31.5Q161.8 42.9 161.8 61Q161.8 78.8 153.2 90.3Q144.7 101.8 127 107.3Q109.2 112.8 81.4 112.8ZM81.4 92.6Q97.5 92.6 108.3 90.8Q119.2 89 125.7 85.1Q132.3 81.3 135.1 75.3Q137.9 69.4 137.9 61Q137.9 52.5 135.1 46.5Q132.3 40.6 125.7 36.7Q119.2 32.9 108.3 31.1Q97.5 29.3 81.4 29.3Q59.9 29.3 47.5 32.5Q35.1 35.8 29.8 42.8Q24.5 49.7 24.5 61Q24.5 72.2 29.8 79.2Q35.1 86.2 47.5 89.4Q59.9 92.6 81.4 92.6ZM319.1 83.5Q319.1 91.2 316 96.8Q313 102.3 305.9 105.9Q298.8 109.4 286.7 111.1Q274.5 112.8 256.2 112.8Q244.4 112.8 231.5 111.7Q218.7 110.7 206.9 109Q195.2 107.3 186.3 105.3L189.7 86.3Q197 87.9 205.5 89.3Q213.9 90.8 223.2 91.8Q232.5 92.9 242.3 93.6Q252.1 94.2 262.2 94.2Q273.1 94.2 279.9 93.6Q286.7 93 290.4 91.6Q294.1 90.3 295.4 88.2Q296.8 86 296.8 82.9Q296.8 78.4 295.1 76.3Q293.3 74.2 289.9 73.3Q286.4 72.3 281.2 71.8L225.1 67.7Q211 66.9 202.1 63.7Q193.2 60.4 188.9 54.5Q184.7 48.5 184.7 39.3Q184.7 28.5 191.1 21.9Q197.5 15.3 211.6 12.3Q225.7 9.3 248.5 9.3Q255.5 9.3 263.9 9.8Q272.3 10.3 281.2 11.2Q290.2 12.1 298.7 13.3Q307.2 14.6 314.3 16.1L310.6 34Q304.2 32.7 296.2 31.6Q288.2 30.5 279.3 29.7Q270.3 28.9 261.2 28.3Q252 27.8 243.3 27.8Q231.7 27.8 224.5 28.4Q217.3 28.9 213.5 30.2Q209.7 31.4 208.3 33.5Q207 35.6 207 38.7Q207 42.5 208.9 44.6Q210.8 46.6 214.5 47.4Q218.3 48.2 224 48.8L279.1 52.9Q289 53.5 296.5 55.5Q304 57.5 309 61.1Q314 64.7 316.5 70.2Q319.1 75.7 319.1 83.5ZM368.5 111H345V11H368.5ZM511.9 70.3V111H490V73.6Q490 67 487.2 62.5Q484.4 58.1 478.4 55.8Q472.4 53.5 463 53.5Q450.5 53.5 434.1 57.3Q417.8 61.1 399.3 67.8V55Q405.9 51.6 413.8 48.1Q421.8 44.6 431 41.6Q440.1 38.7 450 36.9Q459.8 35 470.1 35Q483.4 35 492.8 38.6Q502.1 42.2 507 50Q511.9 57.7 511.9 70.3ZM397 111V36.9H416.1L418.9 53.7V111ZM630.6 54.7H531.3V36.9H630.6ZM548.4 75.1V39.6L552.7 17.9H570.3V73.1Q570.3 81.1 572.6 85.7Q574.9 90.4 580.6 92.3Q586.3 94.3 596.3 94.3Q606.7 94.3 615.2 92.9Q623.8 91.6 631.6 89.9L635.8 107.5Q627.5 109.5 616.7 111.2Q605.9 112.8 594.5 112.8Q578.7 112.8 568.5 109.2Q558.3 105.5 553.4 97.2Q548.4 88.9 548.4 75.1Z"/><path fill="#7B95DD" d="M712.5 31.1H652.7V11H795.8V31.1H736V111H712.5ZM814.2 111V36.9H833.4L836.1 57.1V111ZM890.6 35V54.8Q880.4 54.8 871.4 55.9Q862.4 56.9 853.7 59.3Q845 61.7 836 65.5Q826.9 69.4 816.6 74.8V62.8Q822.5 58.3 830.4 53.5Q838.2 48.7 847.7 44.5Q857.2 40.3 868 37.7Q878.8 35 890.6 35ZM1002.4 42.1 1024.4 40.5V111H1005.1L1002.4 94ZM1024.4 40.4 1015.3 57.4Q1008.6 56.3 999.3 55.4Q990.1 54.4 980.1 53.8Q970.1 53.2 960.9 53.2Q950.7 53.2 943.6 55.2Q936.5 57.3 932.8 61.8Q929.1 66.2 929.1 73.8Q929.1 84.8 935.2 89.6Q941.4 94.3 955.3 94.3Q965.8 94.3 976.9 92Q988.1 89.7 999.7 85.9Q1011.3 82.1 1022.9 77.5V89.9Q1016.3 93.5 1008.3 97.5Q1000.2 101.5 991 104.8Q981.7 108.2 971.7 110.3Q961.6 112.4 951.1 112.4Q937.6 112.4 927.7 108.6Q917.9 104.8 912.5 96.4Q907.2 88 907.2 74.5Q907.2 59.6 914.2 51.1Q921.3 42.6 933.9 39Q946.5 35.4 963.1 35.4Q981.2 35.4 996.8 37Q1012.4 38.6 1024.4 40.4ZM1049 73.7Q1049 60.1 1055.6 51.6Q1062.2 43.1 1076.3 39.1Q1090.4 35 1112.7 35Q1126.6 35 1139.3 36.6Q1152.1 38.2 1161.6 40.5L1157.1 58.2Q1149.5 56.5 1137.9 55.1Q1126.4 53.6 1109.5 53.6Q1095.6 53.6 1087 55.4Q1078.5 57.2 1074.7 61.6Q1070.9 66 1070.9 73.7Q1070.9 81.5 1074.7 86Q1078.5 90.4 1087 92.2Q1095.6 94 1109.5 94Q1126.4 94 1137.9 92.6Q1149.5 91.1 1157.1 89.5L1161.6 107.1Q1152.1 109.4 1139.6 111Q1127.1 112.6 1112.7 112.6Q1090.4 112.6 1076.3 108.6Q1062.2 104.5 1055.6 95.9Q1049 87.3 1049 73.7ZM1208.9 1V111H1187V1ZM1247.1 80.5H1207.1V62.6H1247.1ZM1300.9 36.9 1244.6 76.8 1244.1 65.6 1302.8 111H1272.9L1232.4 80.5V62.9L1271.2 36.9ZM1375.1 95.4Q1386 95.4 1395.2 94.6Q1404.4 93.9 1411.3 92.9Q1418.3 91.8 1422.3 91.1L1426.8 107.1Q1420.2 108.8 1411.3 110Q1402.5 111.3 1392.6 112.1Q1382.8 112.8 1373.2 112.8Q1352.6 112.8 1339.2 108.9Q1325.9 105.1 1319.4 96.5Q1312.9 87.9 1312.9 73.9Q1312.9 60 1319.7 51.4Q1326.6 42.9 1339.6 39Q1352.6 35 1371.2 35Q1384.1 35 1394.7 36.9Q1405.3 38.7 1412.9 42.6Q1420.6 46.6 1424.8 53.2Q1428.9 59.7 1428.9 69.2Q1428.9 70.6 1428.8 72.7Q1428.7 74.7 1428.6 76.5Q1428.5 78.3 1428.3 79.2H1324.7V67.4H1411L1407.6 72Q1407.6 64.4 1404.7 59.6Q1401.7 54.7 1393.7 52.4Q1385.7 50 1370.4 50Q1357.1 50 1349 52.2Q1341 54.3 1337.5 59.3Q1334 64.3 1334 73Q1334 79.9 1336.1 84.4Q1338.2 88.8 1343 91.2Q1347.8 93.6 1355.6 94.5Q1363.5 95.4 1375.1 95.4ZM1454.4 111V36.9H1473.6L1476.3 57.1V111ZM1530.8 35V54.8Q1520.6 54.8 1511.6 55.9Q1502.6 56.9 1493.9 59.3Q1485.2 61.7 1476.2 65.5Q1467.1 69.4 1456.8 74.8V62.8Q1462.7 58.3 1470.5 53.5Q1478.4 48.7 1487.9 44.5Q1497.4 40.3 1508.2 37.7Q1519 35 1530.8 35Z"/></svg></span>
+    <span class="langs">
+        <button id="btn-en" onclick="setLang('en')">English</button>
+        <button id="btn-it" onclick="setLang('it')">Italiano</button>
+    </span>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════ ENGLISH ═══════════════════════════ -->
+<div class="lang" id="lang-en">
+
+<h1>User Manual</h1>
+<p class="sub">OSInt Tracker &middot; Andrea Cumini &middot; <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></p>
+
+<div class="toc">
+    <div><a href="#overview">1. Overview</a></div>
+    <div><a href="#requirements">2. Requirements</a></div>
+    <div><a href="#api-key">3. Getting a Google Maps API key</a></div>
+    <div><a href="#start">4. Starting the application</a></div>
+    <div><a href="#first-run">5. First run</a></div>
+    <div><a href="#interface">6. The interface</a></div>
+    <div><a href="#sessions">7. Sessions</a></div>
+    <div><a href="#recording">8. Recording a route</a></div>
+    <div><a href="#playback">9. Playback</a></div>
+    <div><a href="#tags">10. Tags</a></div>
+    <div><a href="#data">11. Your data</a></div>
+    <div><a href="#troubleshooting">12. Troubleshooting</a></div>
+    <div><a href="#legal">13. License and legal notes</a></div>
+</div>
+
+<h2 id="overview">1. Overview</h2>
+<p>When you explore a place in Google Street View it is easy to lose track of where you have already been, and to be unable to find again the spot where you noticed something. OSInt Tracker records the route for you: while you move in Street View as usual, every panorama you visit and every turn of the camera becomes a numbered step, drawn on a satellite map. You can attach a note to any step and replay the whole route later, seeing each view exactly as you framed it.</p>
+<ul>
+    <li>Street View and a satellite map side by side, always in sync.</li>
+    <li>Automatic recording of the route, including where the camera was pointing.</li>
+    <li>Separate sessions for different investigations.</li>
+    <li>Tags (notes) on any step, shown on the map and during playback.</li>
+    <li>Step-by-step or automatic playback, with animated camera turns.</li>
+    <li>Search by address or place name.</li>
+</ul>
+
+<h2 id="requirements">2. Requirements</h2>
+<table>
+    <tr><th>Item</th><th>Requirement</th></tr>
+    <tr><td>Operating system</td><td>Windows 10 or 11 (64-bit) for the packaged program. From source: any system with Python 3.10 or later.</td></tr>
+    <tr><td>Browser</td><td>A recent version of Chrome, Edge or Firefox.</td></tr>
+    <tr><td>Internet</td><td>Required: maps, Street View and the positions of your recorded steps come from Google.</td></tr>
+    <tr><td>Google Maps API key</td><td>Your own key, with <b>Maps JavaScript API</b> and <b>Geocoding API</b> enabled (see <a href="#api-key">section 3</a>).</td></tr>
+    <tr><td>Network port</td><td>Port 5000 on your computer must be free.</td></tr>
+</table>
+
+<h2 id="api-key">3. Getting a Google Maps API key</h2>
+<p>The application shows Google's maps through <b>your own</b> Google Maps Platform account: you need a personal API key. Creating it takes about ten minutes. The names of the menus below are those of the Google Cloud Console; Google changes them from time to time, but the steps stay the same.</p>
+
+<h3>3.1 Create a project</h3>
+<ol>
+    <li>Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> and sign in with your Google account.</li>
+    <li>Click the project selector at the top, then <b>New project</b>.</li>
+    <li>Give it a name (for example <code>osint-tracker</code>) and click <b>Create</b>. Make sure the new project is the one selected in the top bar.</li>
+</ol>
+
+<h3>3.2 Link a billing account</h3>
+<ol>
+    <li>Open <b>Billing</b> from the main menu.</li>
+    <li>Create a billing account (name and a payment method are required) and link it to the project.</li>
+</ol>
+<p>Google requires a billing account even if you never go beyond the free usage. With the standard <b>pay-as-you-go</b> plan every service has a number of free calls each month; you pay only for what exceeds it.</p>
+<table>
+    <tr><th>What you do in the program</th><th>Google service</th><th>Category</th><th>Free every month</th></tr>
+    <tr><td>Open or reload the panel: the satellite map</td><td>Dynamic Maps</td><td>Essentials</td><td><b>10,000</b></td></tr>
+    <tr><td>Open or reload the panel: Street View</td><td>Dynamic Street View</td><td>Pro</td><td><b>5,000</b></td></tr>
+    <tr><td>Each search in <i>Search Location</i></td><td>Geocoding</td><td>Essentials</td><td><b>10,000</b></td></tr>
+</table>
+<p>Google's <b>Essentials</b> services include 10,000 free calls per service per month; Street View belongs to the <b>Pro</b> category, which includes 5,000. Both are counted <b>once each time the panel is opened or reloaded</b>, not for every movement: walking along a street, recording, replaying a route and opening your sessions do not add calls. In practice you would have to open the panel more than 5,000 times in a month before paying anything.</p>
+<div class="note warn">Above the free amounts Google charges per 1,000 calls: about 7 USD for the map, 14 USD for Street View and 5 USD for searches. New Google Cloud customers also receive a trial credit. These figures are those of October 2026 and may change: check the <a href="https://mapsplatform.google.com/pricing/#pay-as-you-go" target="_blank" rel="noopener">Google Maps Platform pricing page</a>, and see 3.5 for how to cap your spending.</div>
+
+<h3>3.3 Enable the two services</h3>
+<ol>
+    <li>Go to <b>APIs &amp; Services &rarr; Library</b>.</li>
+    <li>Search for <b>Maps JavaScript API</b>, open it and click <b>Enable</b>. It provides the map and Street View.</li>
+    <li>Search for <b>Geocoding API</b> and click <b>Enable</b>. It is used by the <i>Search Location</i> box.</li>
+</ol>
+<p>No other service is needed.</p>
+
+<h3>3.4 Create the key</h3>
+<ol>
+    <li>Go to <b>APIs &amp; Services &rarr; Credentials</b> (in the Google Maps Platform pages it is called <b>Keys &amp; Credentials</b>).</li>
+    <li>Click <b>Create credentials &rarr; API key</b>.</li>
+    <li>Copy the key that is shown.</li>
+</ol>
+
+<h3>3.5 Protect the key (recommended)</h3>
+<p>Open the key you just created and set:</p>
+<ul>
+    <li><b>Application restrictions &rarr; Websites</b>, adding these two addresses:<br><code>http://127.0.0.1:5000/*</code><br><code>http://localhost:5000/*</code></li>
+    <li><b>API restrictions &rarr; Restrict key</b>, selecting only <i>Maps JavaScript API</i> and <i>Geocoding API</i>.</li>
+</ul>
+<p>With these two settings the key works only from this program on your computer. To keep costs under control you can also set a budget alert (<b>Billing &rarr; Budgets &amp; alerts</b>) and a daily limit on each service (<b>APIs &amp; Services &rarr; the API &rarr; Quotas</b>).</p>
+
+<h3>3.6 Enter the key in the program</h3>
+<ol>
+    <li>In the left panel open <b>Google Maps API Key</b>.</li>
+    <li>Paste the key and click <b>Save API Key</b> (or press <kbd>Enter</kbd>).</li>
+</ol>
+<p>The maps load at once. The key is saved in the file <code>key.txt</code> next to the program and does not have to be entered again.</p>
+
+<h2 id="start">4. Starting the application</h2>
+<p>Start the program (<code>OSINTTracker.exe</code>, or <code>pythonw launcher.py</code> from source). A small bar appears in the bottom-right corner of the screen and stays on top of the other windows:</p>
+<table>
+    <tr><th>Control</th><th>Function</th></tr>
+    <tr><td>Coloured dot</td><td>Grey: server stopped. Yellow: starting. Green: running.</td></tr>
+    <tr><td>&#9654;</td><td>Starts the server.</td></tr>
+    <tr><td>&#9632;</td><td>Stops the server.</td></tr>
+    <tr><td>&#127760;</td><td>Opens (or re-opens) the panel in your browser at <code>http://127.0.0.1:5000</code>.</td></tr>
+    <tr><td>&#10005;</td><td>Closes everything: server and launcher.</td></tr>
+    <tr><td>&#8942;&#8942;</td><td>Drag here to move the bar.</td></tr>
+</table>
+<p>When the launcher opens, the server starts by itself and the browser opens as soon as it is ready. If you close the browser tab, click &#127760; to open it again.</p>
+<div class="note warn">Each time the program starts, the panel first shows the <b>Terms of use and disclaimer</b> (in English). Click <b>I accept</b> to use the program. If you click <b>I do not accept</b>, the program closes: server and launcher stop, and the page tells you that it can be closed. You can read the text again at any time from <b>Licenses &rarr; Disclaimer</b>.</div>
+
+<h2 id="first-run">5. First run</h2>
+<ol>
+    <li>The panel opens with the <b>Google Maps API Key</b> section expanded: paste your key and save it (<a href="#api-key">section 3</a>).</li>
+    <li>Street View appears in the upper area and the satellite map below it.</li>
+    <li>Try the search box with an address to check that everything works.</li>
+</ol>
+
+<h2 id="interface">6. The interface</h2>
+<figure>
+    <a href="gui-manual.png" target="_blank"><img src="gui-manual.png" alt="The OSInt Tracker panel" loading="lazy"></a>
+    <figcaption>The panel: the controls on the left, Street View at the top, the satellite map below with the red cone showing where the camera looks. The small bar at the bottom right is the launcher. Click the image to enlarge it.<br><b>Why the panorama is missing:</b> in this picture the Street View area is replaced by a placeholder, because Google does not allow screenshots of Street View imagery to be published. In the program that area shows the real panorama.</figcaption>
+</figure>
+<h3>Left panel</h3>
+<ul>
+    <li><b>User manual / How to get an API key</b> &mdash; open this manual.</li>
+    <li><b>Licenses</b> &mdash; shows the license of the program and of the software it includes.</li>
+    <li><b>Search Location</b> &mdash; type an address or a place and press <kbd>Enter</kbd>.</li>
+    <li><b>Steps</b> &mdash; the steps of the current session, most recent first. Visible when a session is selected.</li>
+    <li><b>Session Controls</b> &mdash; start/stop recording, play the route.</li>
+    <li><b>Playback</b> &mdash; shown while a route is being replayed.</li>
+    <li><b>Sessions</b> &mdash; create, select and delete sessions.</li>
+    <li><b>Google Maps API Key</b> &mdash; enter or change your key.</li>
+    <li><b>About / Legal</b> &mdash; license and Google terms.</li>
+</ul>
+<h3>Street View (upper area)</h3>
+<ul>
+    <li><b>Step box</b> (left, under Google's address box) &mdash; number and tag of the recorded step you are on or near (within 15 metres).</li>
+    <li><b>&#9679; REC</b> (right, under the full-screen button) &mdash; recording is active.</li>
+    <li><b>Yellow banner</b> (top centre) &mdash; the tag of the current step during playback.</li>
+    <li><b>LAT / LNG</b> (bottom left) &mdash; coordinates of the panorama you are looking at.</li>
+</ul>
+<h3>Satellite map (lower area)</h3>
+<ul>
+    <li><b>Red dot with a cone</b> &mdash; where you are and what the camera frames: the cone points where you are looking and narrows when you zoom in.</li>
+    <li><b>Green numbered circles</b> &mdash; the recorded steps; <b>orange</b> ones have a tag, shown in a label.</li>
+    <li><b>Green line</b> &mdash; the route, in recording order.</li>
+    <li><b>Click on the map</b> &mdash; Street View moves to the nearest official Google panorama.</li>
+</ul>
+
+<h2 id="sessions">7. Sessions</h2>
+<p>A session is one route: an investigation, an area, a walk. Sessions are independent of each other.</p>
+<ul>
+    <li><b>Create</b>: type a name in <i>New session name</i> and press <kbd>Enter</kbd> (or click <b>Create Session</b>). The new session is selected.</li>
+    <li><b>Select</b>: click a session. Street View goes to its last step and the route is drawn on the map; while the positions are being fetched the Steps title shows <i>locating n/m</i>.</li>
+    <li><b>Delete</b>: click the red &#10005; next to the session and confirm. All its steps are deleted permanently.</li>
+</ul>
+
+<h2 id="recording">8. Recording a route</h2>
+<ol>
+    <li>Select or create a session and click <b>&#9210; Start Rec</b>. In a new session the view you are looking at becomes step #1; in an existing session Street View first returns to the last step and continues from there.</li>
+    <li>Move in Street View as usual (arrows on the road, clicks on the map, search). Every new panorama is saved as a step.</li>
+    <li>Turn the camera towards what interests you. When you stop for a moment, a turn of at least 10&deg; (or a zoom change) is saved as a <b>&#8635; turn</b> step on the same spot.</li>
+    <li>Click <b>&#11035; Stop Recording</b> to move freely without recording.</li>
+</ol>
+<p>Each row of the list shows the step number, its coordinates and the camera heading. Click a row to go back to that step with the same view. The most recent step is highlighted in red.</p>
+<div class="note">Recording saves automatically after every step: there is nothing to save at the end.</div>
+
+<h2 id="playback">9. Playback</h2>
+<p>Click <b>&#9654; Play Route</b> to replay the session from the first step. Each step shows the same panorama with the same framing; turns of the camera are animated.</p>
+<table>
+    <tr><th>Control</th><th>Function</th></tr>
+    <tr><td>&#9664; Prev / Next &#9654;</td><td>Previous / next step. Also the <kbd>&larr;</kbd> and <kbd>&rarr;</kbd> keys (click the left panel first if the arrows move the map instead).</td></tr>
+    <tr><td>&#9654;&#9654; Auto Play</td><td>Plays the steps one after the other; the button becomes <i>Pause</i>.</td></tr>
+    <tr><td>Speed</td><td>Time on each step: 0.5 s to 5 s. Can be changed while playing.</td></tr>
+    <tr><td>Click on a row</td><td>Jumps to that step.</td></tr>
+    <tr><td>&#9632; Stop</td><td>Ends the playback.</td></tr>
+</table>
+<p>The current step is highlighted in blue in the list; its number and tag are shown on Street View, and a tagged step also shows the yellow banner.</p>
+
+<h2 id="tags">10. Tags</h2>
+<ul>
+    <li><b>Add or edit</b>: click the &#127991;&#65039; button on a step, type the text and click <b>Save Tag</b> (or <kbd>Ctrl</kbd>+<kbd>Enter</kbd>). <kbd>Esc</kbd> cancels.</li>
+    <li><b>Remove</b>: open the tag, clear the text and save.</li>
+    <li><b>Where it appears</b>: under the step in the list, in an orange marker with a label on the map, in the step box on Street View and in the yellow banner during playback.</li>
+    <li><b>Delete a step</b>: click its red &#10005; and confirm.</li>
+</ul>
+<p>A tag can be put on a turn step too: it is the natural way to note what the camera was pointed at.</p>
+
+<h2 id="data">11. Your data</h2>
+<p>Everything stays on your computer, in two files next to the program:</p>
+<table>
+    <tr><th>File</th><th>Content</th></tr>
+    <tr><td><code>osint.db</code></td><td>Your sessions. For every step: the <b>identifier of the Google panorama</b>, the camera heading, pitch and zoom, the time and your tag.</td></tr>
+    <tr><td><code>key.txt</code></td><td>Your Google Maps API key.</td></tr>
+    <tr><td><code>launcher.log</code></td><td>Technical log of the server, useful if something goes wrong.</td></tr>
+</table>
+<p>The program does <b>not</b> store coordinates, Street View images or map tiles: Google's terms allow keeping panorama identifiers, not the content. The coordinates you see are requested from Google each time a session is opened and are kept in memory only. This has two consequences:</p>
+<ul>
+    <li>Opening a session needs an Internet connection and takes a moment for long routes.</li>
+    <li>If Google removes or replaces a panorama, that step is shown as <b>&#9888; panorama unavailable</b>: its tag and its place in the route remain, but the view can no longer be shown.</li>
+</ul>
+<p>The server only accepts connections from your own computer and only from the program's page. To back up or move your work, copy <code>osint.db</code> while the program is closed.</p>
+<div class="note">A database created by an earlier version (which stored coordinates) is not compatible: at the first start it is renamed <code>osint.db.old</code> and a new empty one is created.</div>
+
+<h2 id="troubleshooting">12. Troubleshooting</h2>
+<table>
+    <tr><th>Problem</th><th>What to check</th></tr>
+    <tr><td>The map is grey, or a Google error message appears</td><td>The key is wrong, billing is not linked to the project, or <i>Maps JavaScript API</i> is not enabled. If you restricted the key, check the two addresses in 3.5.</td></tr>
+    <tr><td>"Google Maps rejected the API key"</td><td>Same causes as above. Correct the key in <b>Google Maps API Key</b> and save.</td></tr>
+    <tr><td>Search does not find anything</td><td><i>Geocoding API</i> is not enabled, or it is not among the services allowed for the key.</td></tr>
+    <tr><td>Street View is black</td><td>There is no Street View coverage there: click another point on the map or use the search.</td></tr>
+    <tr><td>"&#9888; panorama unavailable"</td><td>Google no longer provides that panorama (see <a href="#data">section 11</a>).</td></tr>
+    <tr><td>Steps are not being saved</td><td>Check that a session is selected and that &#9679; REC is visible.</td></tr>
+    <tr><td>"Cannot connect to server"</td><td>The server is stopped: click &#9654; on the launcher bar, wait for the green dot and reload the page.</td></tr>
+    <tr><td>"Server and page versions differ"</td><td>After an update: click &#9632; then &#9654; on the launcher bar and reload the page with <kbd>F5</kbd>.</td></tr>
+    <tr><td>The dot stays grey or yellow</td><td>Port 5000 may be used by another program: close it and try again. Details are in <code>launcher.log</code>.</td></tr>
+</table>
+
+<h2 id="legal">13. License and legal notes</h2>
+<p>OSInt Tracker &mdash; Copyright &copy; 2024-2026 Andrea Cumini &mdash; <a href="mailto:andrea@osintinfo.net">andrea@osintinfo.net</a> &mdash; <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></p>
+<p>Free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License version 3</a> with additional terms requiring the preservation of the author attribution: see the <code>LICENSE</code> and <code>NOTICE</code> files distributed with the program. It comes with no warranty: the terms you accept at startup are in the file <code>DISCLAIMER.txt</code>.</p>
+<p>This application includes Google Maps features and content. Use of Google Maps features and content is subject to the <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noopener">Google Maps/Google Earth Additional Terms of Service</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>. You use your own API key and are responsible for complying with the <a href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noopener">Google Maps Platform Terms of Service</a>.</p>
+<p>This program is not affiliated with or endorsed by Google. Google Maps and Street View are trademarks of Google LLC. Use it in compliance with the laws that apply to you.</p>
+
+</div>
+
+<!-- ═══════════════════════════ ITALIANO ═══════════════════════════ -->
+<div class="lang" id="lang-it">
+
+<h1>Manuale utente</h1>
+<p class="sub">OSInt Tracker &middot; Andrea Cumini &middot; <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></p>
+
+<div class="toc">
+    <div><a href="#overview-it">1. Panoramica</a></div>
+    <div><a href="#requirements-it">2. Requisiti</a></div>
+    <div><a href="#api-key-it">3. Ottenere una API key di Google Maps</a></div>
+    <div><a href="#start-it">4. Avvio dell'applicazione</a></div>
+    <div><a href="#first-run-it">5. Primo avvio</a></div>
+    <div><a href="#interface-it">6. L'interfaccia</a></div>
+    <div><a href="#sessions-it">7. Sessioni</a></div>
+    <div><a href="#recording-it">8. Registrare un percorso</a></div>
+    <div><a href="#playback-it">9. Riproduzione</a></div>
+    <div><a href="#tags-it">10. Tag</a></div>
+    <div><a href="#data-it">11. I tuoi dati</a></div>
+    <div><a href="#troubleshooting-it">12. Risoluzione dei problemi</a></div>
+    <div><a href="#legal-it">13. Licenza e note legali</a></div>
+</div>
+
+<h2 id="overview-it">1. Panoramica</h2>
+<p>Esplorando un luogo in Google Street View &egrave; facile perdere il filo di dove si &egrave; gi&agrave; passati, e non riuscire pi&ugrave; a ritrovare il punto in cui si era notato qualcosa. OSInt Tracker registra il percorso al posto tuo: mentre ti muovi in Street View come sempre, ogni panorama visitato e ogni rotazione dell'inquadratura diventano uno step numerato, disegnato su una mappa satellitare. Puoi associare una nota a qualsiasi step e rivedere in seguito l'intero percorso, ritrovando ogni vista esattamente come l'avevi inquadrata.</p>
+<ul>
+    <li>Street View e mappa satellitare affiancate, sempre sincronizzate.</li>
+    <li>Registrazione automatica del percorso, compresa la direzione dell'inquadratura.</li>
+    <li>Sessioni separate per indagini diverse.</li>
+    <li>Tag (note) su qualsiasi step, visibili sulla mappa e in riproduzione.</li>
+    <li>Riproduzione passo-passo o automatica, con rotazioni animate.</li>
+    <li>Ricerca per indirizzo o nome del luogo.</li>
+</ul>
+
+<h2 id="requirements-it">2. Requisiti</h2>
+<table>
+    <tr><th>Voce</th><th>Requisito</th></tr>
+    <tr><td>Sistema operativo</td><td>Windows 10 o 11 (64 bit) per il programma compilato. Da sorgente: qualsiasi sistema con Python 3.10 o successivo.</td></tr>
+    <tr><td>Browser</td><td>Una versione recente di Chrome, Edge o Firefox.</td></tr>
+    <tr><td>Internet</td><td>Necessaria: mappe, Street View e posizioni degli step registrati arrivano da Google.</td></tr>
+    <tr><td>API key di Google Maps</td><td>Una chiave personale, con <b>Maps JavaScript API</b> e <b>Geocoding API</b> abilitate (vedi <a href="#api-key-it">sezione 3</a>).</td></tr>
+    <tr><td>Porta di rete</td><td>La porta 5000 del computer deve essere libera.</td></tr>
+</table>
+
+<h2 id="api-key-it">3. Ottenere una API key di Google Maps</h2>
+<p>L'applicazione mostra le mappe di Google attraverso il <b>tuo</b> account Google Maps Platform: serve una API key personale. Per crearla bastano una decina di minuti. I nomi dei menu qui sotto sono quelli della Google Cloud Console; Google li modifica ogni tanto, ma i passaggi restano gli stessi.</p>
+
+<h3>3.1 Creare un progetto</h3>
+<ol>
+    <li>Apri <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> e accedi con il tuo account Google.</li>
+    <li>Clicca sul selettore dei progetti in alto, poi <b>Nuovo progetto</b>.</li>
+    <li>Assegna un nome (per esempio <code>osint-tracker</code>) e clicca <b>Crea</b>. Verifica che il nuovo progetto sia quello selezionato nella barra in alto.</li>
+</ol>
+
+<h3>3.2 Collegare un account di fatturazione</h3>
+<ol>
+    <li>Apri <b>Fatturazione</b> dal menu principale.</li>
+    <li>Crea un account di fatturazione (servono un nome e un metodo di pagamento) e collegalo al progetto.</li>
+</ol>
+<p>Google richiede un account di fatturazione anche se non superi mai l'utilizzo gratuito. Con il normale piano <b>a consumo</b> (pay-as-you-go) ogni servizio ha un numero di chiamate gratuite al mese; si paga solo l'eccedenza.</p>
+<table>
+    <tr><th>Che cosa fai nel programma</th><th>Servizio Google</th><th>Categoria</th><th>Gratuite ogni mese</th></tr>
+    <tr><td>Apri o ricarichi il pannello: la mappa satellitare</td><td>Dynamic Maps</td><td>Essentials</td><td><b>10.000</b></td></tr>
+    <tr><td>Apri o ricarichi il pannello: Street View</td><td>Dynamic Street View</td><td>Pro</td><td><b>5.000</b></td></tr>
+    <tr><td>Ogni ricerca in <i>Search Location</i></td><td>Geocoding</td><td>Essentials</td><td><b>10.000</b></td></tr>
+</table>
+<p>I servizi <b>Essentials</b> di Google includono 10.000 chiamate gratuite al mese per ciascun servizio; Street View appartiene alla categoria <b>Pro</b>, che ne include 5.000. Entrambi vengono contati <b>una volta ogni volta che apri o ricarichi il pannello</b>, non a ogni spostamento: percorrere una strada, registrare, riprodurre un percorso e aprire le sessioni non aggiungono chiamate. In pratica dovresti aprire il pannello pi&ugrave; di 5.000 volte in un mese prima di pagare qualcosa.</p>
+<div class="note warn">Oltre le quote gratuite Google addebita ogni 1.000 chiamate: circa 7 USD per la mappa, 14 USD per Street View e 5 USD per le ricerche. I nuovi clienti Google Cloud ricevono inoltre un credito di prova. Queste cifre sono quelle di ottobre 2026 e possono cambiare: controlla la <a href="https://mapsplatform.google.com/pricing/#pay-as-you-go" target="_blank" rel="noopener">pagina dei prezzi di Google Maps Platform</a>, e vedi il punto 3.5 per mettere un tetto alla spesa.</div>
+
+<h3>3.3 Abilitare i due servizi</h3>
+<ol>
+    <li>Vai su <b>API e servizi &rarr; Libreria</b>.</li>
+    <li>Cerca <b>Maps JavaScript API</b>, aprila e clicca <b>Abilita</b>. Fornisce la mappa e Street View.</li>
+    <li>Cerca <b>Geocoding API</b> e clicca <b>Abilita</b>. Serve alla casella <i>Search Location</i>.</li>
+</ol>
+<p>Non servono altri servizi.</p>
+
+<h3>3.4 Creare la chiave</h3>
+<ol>
+    <li>Vai su <b>API e servizi &rarr; Credenziali</b> (nelle pagine di Google Maps Platform si chiama <b>Chiavi e credenziali</b>).</li>
+    <li>Clicca <b>Crea credenziali &rarr; Chiave API</b>.</li>
+    <li>Copia la chiave mostrata.</li>
+</ol>
+
+<h3>3.5 Proteggere la chiave (consigliato)</h3>
+<p>Apri la chiave appena creata e imposta:</p>
+<ul>
+    <li><b>Restrizioni delle applicazioni &rarr; Siti web</b>, aggiungendo questi due indirizzi:<br><code>http://127.0.0.1:5000/*</code><br><code>http://localhost:5000/*</code></li>
+    <li><b>Restrizioni delle API &rarr; Limita chiave</b>, selezionando solo <i>Maps JavaScript API</i> e <i>Geocoding API</i>.</li>
+</ul>
+<p>Con queste due impostazioni la chiave funziona soltanto da questo programma sul tuo computer. Per tenere i costi sotto controllo puoi anche impostare un avviso di budget (<b>Fatturazione &rarr; Budget e avvisi</b>) e un limite giornaliero per ciascun servizio (<b>API e servizi &rarr; l'API &rarr; Quote</b>).</p>
+
+<h3>3.6 Inserire la chiave nel programma</h3>
+<ol>
+    <li>Nel pannello di sinistra apri <b>Google Maps API Key</b>.</li>
+    <li>Incolla la chiave e clicca <b>Save API Key</b> (o premi <kbd>Invio</kbd>).</li>
+</ol>
+<p>Le mappe si caricano subito. La chiave viene salvata nel file <code>key.txt</code> accanto al programma e non va pi&ugrave; reinserita.</p>
+
+<h2 id="start-it">4. Avvio dell'applicazione</h2>
+<p>Avvia il programma (<code>OSINTTracker.exe</code>, oppure <code>pythonw launcher.py</code> da sorgente). Nell'angolo in basso a destra dello schermo compare una barretta che resta sempre sopra le altre finestre:</p>
+<table>
+    <tr><th>Controllo</th><th>Funzione</th></tr>
+    <tr><td>Pallino colorato</td><td>Grigio: server fermo. Giallo: in avvio. Verde: in funzione.</td></tr>
+    <tr><td>&#9654;</td><td>Avvia il server.</td></tr>
+    <tr><td>&#9632;</td><td>Ferma il server.</td></tr>
+    <tr><td>&#127760;</td><td>Apre (o riapre) il pannello nel browser all'indirizzo <code>http://127.0.0.1:5000</code>.</td></tr>
+    <tr><td>&#10005;</td><td>Chiude tutto: server e launcher.</td></tr>
+    <tr><td>&#8942;&#8942;</td><td>Trascina da qui per spostare la barretta.</td></tr>
+</table>
+<p>All'apertura del launcher il server parte da solo e il browser si apre appena &egrave; pronto. Se chiudi la scheda del browser, clicca &#127760; per riaprirla.</p>
+<div class="note warn">A ogni avvio del programma il pannello mostra per prima cosa i <b>Terms of use and disclaimer</b> (condizioni d'uso ed esclusione di responsabilit&agrave;, in inglese). Clicca <b>I accept</b> per usare il programma. Se clicchi <b>I do not accept</b> il programma si chiude: server e launcher si fermano e la pagina avvisa che pu&ograve; essere chiusa. Il testo si pu&ograve; rileggere in qualsiasi momento da <b>Licenses &rarr; Disclaimer</b>.</div>
+
+<h2 id="first-run-it">5. Primo avvio</h2>
+<ol>
+    <li>Il pannello si apre con la sezione <b>Google Maps API Key</b> espansa: incolla la tua chiave e salvala (<a href="#api-key-it">sezione 3</a>).</li>
+    <li>Street View compare nell'area superiore e la mappa satellitare sotto.</li>
+    <li>Prova la casella di ricerca con un indirizzo per verificare che tutto funzioni.</li>
+</ol>
+
+<h2 id="interface-it">6. L'interfaccia</h2>
+<figure>
+    <a href="gui-manual.png" target="_blank"><img src="gui-manual.png" alt="Il pannello di OSInt Tracker" loading="lazy"></a>
+    <figcaption>Il pannello: i controlli a sinistra, Street View in alto, la mappa satellitare in basso con il cono rosso che indica dove guarda la camera. La barretta in basso a destra &egrave; il launcher. Clicca l'immagine per ingrandirla.<br><b>Perch&eacute; manca il panorama:</b> in questa immagine l'area di Street View &egrave; sostituita da un riquadro, perch&eacute; Google non consente di pubblicare screenshot delle immagini di Street View. Nel programma, in quell'area vedi il panorama vero.</figcaption>
+</figure>
+<h3>Pannello di sinistra</h3>
+<ul>
+    <li><b>User manual / How to get an API key</b> &mdash; aprono questo manuale.</li>
+    <li><b>Licenses</b> &mdash; mostra la licenza del programma e del software che include.</li>
+    <li><b>Search Location</b> &mdash; scrivi un indirizzo o un luogo e premi <kbd>Invio</kbd>.</li>
+    <li><b>Steps</b> &mdash; gli step della sessione corrente, dal pi&ugrave; recente. Visibile quando una sessione &egrave; selezionata.</li>
+    <li><b>Session Controls</b> &mdash; avvio/arresto della registrazione, riproduzione del percorso.</li>
+    <li><b>Playback</b> &mdash; compare durante la riproduzione.</li>
+    <li><b>Sessions</b> &mdash; creare, selezionare ed eliminare le sessioni.</li>
+    <li><b>Google Maps API Key</b> &mdash; inserire o cambiare la chiave.</li>
+    <li><b>About / Legal</b> &mdash; licenza e termini di Google.</li>
+</ul>
+<h3>Street View (area superiore)</h3>
+<ul>
+    <li><b>Riquadro dello step</b> (a sinistra, sotto l'indirizzo di Google) &mdash; numero e tag dello step registrato su cui ti trovi o a cui sei vicino (entro 15 metri).</li>
+    <li><b>&#9679; REC</b> (a destra, sotto il pulsante schermo intero) &mdash; la registrazione &egrave; attiva.</li>
+    <li><b>Banner giallo</b> (in alto al centro) &mdash; il tag dello step corrente durante la riproduzione.</li>
+    <li><b>LAT / LNG</b> (in basso a sinistra) &mdash; coordinate del panorama che stai guardando.</li>
+</ul>
+<h3>Mappa satellitare (area inferiore)</h3>
+<ul>
+    <li><b>Punto rosso con un cono</b> &mdash; dove ti trovi e che cosa inquadra la camera: il cono punta nella direzione in cui guardi e si stringe quando fai zoom.</li>
+    <li><b>Cerchi verdi numerati</b> &mdash; gli step registrati; quelli <b>arancioni</b> hanno un tag, mostrato in un'etichetta.</li>
+    <li><b>Linea verde</b> &mdash; il percorso, nell'ordine di registrazione.</li>
+    <li><b>Click sulla mappa</b> &mdash; Street View si sposta sul panorama ufficiale Google pi&ugrave; vicino.</li>
+</ul>
+
+<h2 id="sessions-it">7. Sessioni</h2>
+<p>Una sessione &egrave; un percorso: un'indagine, una zona, un tragitto. Le sessioni sono indipendenti tra loro.</p>
+<ul>
+    <li><b>Creare</b>: scrivi un nome in <i>New session name</i> e premi <kbd>Invio</kbd> (o clicca <b>Create Session</b>). La nuova sessione viene selezionata.</li>
+    <li><b>Selezionare</b>: clicca su una sessione. Street View va al suo ultimo step e il percorso viene disegnato sulla mappa; mentre le posizioni vengono richieste, accanto al titolo Steps compare <i>locating n/m</i>.</li>
+    <li><b>Eliminare</b>: clicca la &#10005; rossa accanto alla sessione e conferma. Tutti i suoi step vengono eliminati definitivamente.</li>
+</ul>
+
+<h2 id="recording-it">8. Registrare un percorso</h2>
+<ol>
+    <li>Seleziona o crea una sessione e clicca <b>&#9210; Start Rec</b>. In una sessione nuova la vista che stai guardando diventa lo step #1; in una sessione esistente Street View torna prima all'ultimo step e si prosegue da l&igrave;.</li>
+    <li>Muoviti in Street View come sempre (frecce sulla strada, click sulla mappa, ricerca). Ogni nuovo panorama viene salvato come step.</li>
+    <li>Ruota l'inquadratura verso ci&ograve; che ti interessa. Quando ti fermi un istante, una rotazione di almeno 10&deg; (o un cambio di zoom) viene salvata come step <b>&#8635; turn</b> nello stesso punto.</li>
+    <li>Clicca <b>&#11035; Stop Recording</b> per muoverti liberamente senza registrare.</li>
+</ol>
+<p>Ogni riga dell'elenco mostra il numero dello step, le coordinate e la direzione dell'inquadratura. Clicca una riga per tornare a quello step con la stessa vista. Lo step pi&ugrave; recente &egrave; evidenziato in rosso.</p>
+<div class="note">La registrazione salva automaticamente dopo ogni step: alla fine non c'&egrave; nulla da salvare.</div>
+
+<h2 id="playback-it">9. Riproduzione</h2>
+<p>Clicca <b>&#9654; Play Route</b> per rivedere la sessione dal primo step. Ogni step mostra lo stesso panorama con la stessa inquadratura; le rotazioni sono animate.</p>
+<table>
+    <tr><th>Controllo</th><th>Funzione</th></tr>
+    <tr><td>&#9664; Prev / Next &#9654;</td><td>Step precedente / successivo. Anche i tasti <kbd>&larr;</kbd> e <kbd>&rarr;</kbd> (clicca prima sul pannello di sinistra se le frecce muovono la mappa).</td></tr>
+    <tr><td>&#9654;&#9654; Auto Play</td><td>Riproduce gli step uno dopo l'altro; il pulsante diventa <i>Pause</i>.</td></tr>
+    <tr><td>Speed</td><td>Tempo su ogni step: da 0,5 s a 5 s. Si pu&ograve; cambiare durante la riproduzione.</td></tr>
+    <tr><td>Click su una riga</td><td>Salta a quello step.</td></tr>
+    <tr><td>&#9632; Stop</td><td>Termina la riproduzione.</td></tr>
+</table>
+<p>Lo step corrente &egrave; evidenziato in blu nell'elenco; numero e tag compaiono su Street View, e uno step con tag mostra anche il banner giallo.</p>
+
+<h2 id="tags-it">10. Tag</h2>
+<ul>
+    <li><b>Aggiungere o modificare</b>: clicca il pulsante &#127991;&#65039; di uno step, scrivi il testo e clicca <b>Save Tag</b> (o <kbd>Ctrl</kbd>+<kbd>Invio</kbd>). <kbd>Esc</kbd> annulla.</li>
+    <li><b>Rimuovere</b>: apri il tag, cancella il testo e salva.</li>
+    <li><b>Dove compare</b>: sotto lo step nell'elenco, in un marker arancione con etichetta sulla mappa, nel riquadro dello step su Street View e nel banner giallo in riproduzione.</li>
+    <li><b>Eliminare uno step</b>: clicca la sua &#10005; rossa e conferma.</li>
+</ul>
+<p>Il tag si pu&ograve; mettere anche su uno step di rotazione: &egrave; il modo naturale per annotare che cosa stavi inquadrando.</p>
+
+<h2 id="data-it">11. I tuoi dati</h2>
+<p>Tutto resta sul tuo computer, in due file accanto al programma:</p>
+<table>
+    <tr><th>File</th><th>Contenuto</th></tr>
+    <tr><td><code>osint.db</code></td><td>Le tue sessioni. Per ogni step: l'<b>identificativo del panorama Google</b>, direzione, inclinazione e zoom dell'inquadratura, l'ora e il tuo tag.</td></tr>
+    <tr><td><code>key.txt</code></td><td>La tua API key di Google Maps.</td></tr>
+    <tr><td><code>launcher.log</code></td><td>Registro tecnico del server, utile se qualcosa non funziona.</td></tr>
+</table>
+<p>Il programma <b>non</b> salva coordinate, immagini di Street View n&eacute; porzioni di mappa: i termini di Google permettono di conservare gli identificativi dei panorami, non i contenuti. Le coordinate che vedi vengono richieste a Google ogni volta che apri una sessione e restano solo in memoria. Questo ha due conseguenze:</p>
+<ul>
+    <li>Per aprire una sessione serve la connessione a Internet, e per i percorsi lunghi occorre qualche istante.</li>
+    <li>Se Google rimuove o sostituisce un panorama, quello step viene mostrato come <b>&#9888; panorama unavailable</b>: il tag e la posizione nel percorso restano, ma la vista non pu&ograve; pi&ugrave; essere mostrata.</li>
+</ul>
+<p>Il server accetta connessioni soltanto dal tuo computer e soltanto dalla pagina del programma. Per fare una copia di sicurezza o spostare il lavoro, copia <code>osint.db</code> a programma chiuso.</p>
+<div class="note">Un database creato da una versione precedente (che salvava le coordinate) non &egrave; compatibile: al primo avvio viene rinominato <code>osint.db.old</code> e ne viene creato uno nuovo, vuoto.</div>
+
+<h2 id="troubleshooting-it">12. Risoluzione dei problemi</h2>
+<table>
+    <tr><th>Problema</th><th>Che cosa controllare</th></tr>
+    <tr><td>La mappa &egrave; grigia, o compare un messaggio di errore di Google</td><td>La chiave &egrave; errata, la fatturazione non &egrave; collegata al progetto, oppure <i>Maps JavaScript API</i> non &egrave; abilitata. Se hai limitato la chiave, controlla i due indirizzi del punto 3.5.</td></tr>
+    <tr><td>"Google Maps rejected the API key"</td><td>Stesse cause. Correggi la chiave in <b>Google Maps API Key</b> e salva.</td></tr>
+    <tr><td>La ricerca non trova nulla</td><td><i>Geocoding API</i> non &egrave; abilitata, oppure non &egrave; tra i servizi consentiti per la chiave.</td></tr>
+    <tr><td>Street View &egrave; nero</td><td>In quel punto non c'&egrave; copertura Street View: clicca un altro punto sulla mappa o usa la ricerca.</td></tr>
+    <tr><td>"&#9888; panorama unavailable"</td><td>Google non fornisce pi&ugrave; quel panorama (vedi <a href="#data-it">sezione 11</a>).</td></tr>
+    <tr><td>Gli step non vengono salvati</td><td>Verifica che una sessione sia selezionata e che &#9679; REC sia visibile.</td></tr>
+    <tr><td>"Cannot connect to server"</td><td>Il server &egrave; fermo: clicca &#9654; sulla barretta del launcher, attendi il pallino verde e ricarica la pagina.</td></tr>
+    <tr><td>"Server and page versions differ"</td><td>Dopo un aggiornamento: clicca &#9632; e poi &#9654; sulla barretta del launcher e ricarica la pagina con <kbd>F5</kbd>.</td></tr>
+    <tr><td>Il pallino resta grigio o giallo</td><td>La porta 5000 potrebbe essere occupata da un altro programma: chiudilo e riprova. I dettagli sono in <code>launcher.log</code>.</td></tr>
+</table>
+
+<h2 id="legal-it">13. Licenza e note legali</h2>
+<p>OSInt Tracker &mdash; Copyright &copy; 2024-2026 Andrea Cumini &mdash; <a href="mailto:andrea@osintinfo.net">andrea@osintinfo.net</a> &mdash; <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></p>
+<p>Software libero distribuito con la <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License versione 3</a> e termini aggiuntivi che impongono di conservare l'attribuzione all'autore: vedi i file <code>LICENSE</code> e <code>NOTICE</code> distribuiti con il programma. Viene fornito senza alcuna garanzia: le condizioni che accetti all'avvio sono nel file <code>DISCLAIMER.txt</code>.</p>
+<p>Questa applicazione include funzionalit&agrave; e contenuti di Google Maps. L'uso delle funzionalit&agrave; e dei contenuti di Google Maps &egrave; soggetto ai <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noopener">Termini di servizio aggiuntivi di Google Maps/Google Earth</a> e alle <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Norme sulla privacy di Google</a>. Usi la tua API key e sei responsabile del rispetto dei <a href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noopener">Termini di servizio di Google Maps Platform</a>.</p>
+<p>Questo programma non &egrave; affiliato a Google n&eacute; approvato da Google. Google Maps e Street View sono marchi di Google LLC. Usalo nel rispetto delle leggi a te applicabili.</p>
+
+</div>
+
+</main>
+
+<script>
+    // Language: English unless Italian was chosen before
+    function setLang(lang, scroll) {
+        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+        document.getElementById('lang-it').classList.toggle('active', lang === 'it');
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-it').classList.toggle('active', lang === 'it');
+        document.documentElement.lang = lang;
+        try { localStorage.setItem('manual-lang', lang); } catch (e) {}
+
+        // A link such as /manual#api-key must land on the same section in either language
+        if (scroll && location.hash) {
+            const base = location.hash.slice(1).replace(/-it$/, '');
+            const target = document.getElementById(lang === 'it' ? base + '-it' : base);
+            if (target) target.scrollIntoView();
+        }
+    }
+
+    let saved = null;
+    try { saved = localStorage.getItem('manual-lang'); } catch (e) {}
+    setLang(saved === 'it' ? 'it' : 'en', true);
+</script>
+</body>
+</html>

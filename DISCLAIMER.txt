@@ -1,0 +1,34 @@
+OSInt Tracker
+TERMS OF USE AND DISCLAIMER
+
+Please read carefully. By selecting "I accept" you confirm that you have read and understood this notice and that you agree to it. If you do not agree, select "I do not accept": the program will close.
+
+1. NO WARRANTY
+
+This program is provided "AS IS" and "AS AVAILABLE", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, accuracy and non-infringement. The entire risk as to the quality, the performance and the results of the program is with you.
+
+2. LIMITATION OF LIABILITY
+
+To the maximum extent permitted by applicable law, in no event shall the author, the copyright holders or the contributors be liable for any claim, damages or other liability, whether direct, indirect, incidental, special, consequential or otherwise - including loss of data, loss of profits, costs charged by third parties and legal consequences - arising from, out of or in connection with the program, its use or the inability to use it, even if advised of the possibility of such damages.
+
+3. YOUR RESPONSIBILITY
+
+You alone are responsible for how you use this program and for what you do with the information you obtain through it. It is your responsibility to make sure that your use is lawful and complies with all the laws and regulations that apply to you, including those on privacy, data protection and investigative activities. The author accepts no responsibility for any unlawful, improper or harmful use of the program.
+
+4. GOOGLE MAPS
+
+Maps, imagery and location data are supplied by Google through your own Google Maps Platform account and API key. You are responsible for complying with the Google Maps Platform Terms of Service, the Google Maps/Google Earth Additional Terms of Service and the Google Privacy Policy, and for any cost that Google charges to your account. The author has no control over Google's services, their availability, their accuracy or their prices. This program is not affiliated with, endorsed by or sponsored by Google.
+
+5. ACCURACY OF THE INFORMATION
+
+Positions, imagery, dates and any other information shown may be inaccurate, incomplete or out of date. Nothing shown by the program should be relied upon as evidence, or as the only basis for a decision, without independent verification.
+
+6. YOUR DATA
+
+Your recordings and your API key are stored only on your computer. The author does not collect or receive them and has no access to them. Protecting them and backing them up is your responsibility; the author is not responsible for their loss, alteration or disclosure.
+
+7. LICENSE
+
+This program is free software under the GNU General Public License version 3 with additional terms (see LICENSE and NOTICE). Nothing in this notice limits the rights that the license gives you. The disclaimer of warranty and the limitation of liability above apply in addition to sections 15 and 16 of the license.
+
+Andrea Cumini - andrea@osintinfo.net - www.osintinfo.net

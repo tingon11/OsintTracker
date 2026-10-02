@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OSInt Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+            height: 100dvh;
+        }
+
+        #container { display: flex; height: 100dvh; position: relative; }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            width: 320px;
+            min-width: 320px;
+            background: #2a2a2a;
+            border-right: 2px solid #3a3a3a;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform .25s ease;
+        }
+
+        #sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 10px; left: 10px;
+            z-index: 200;
+            width: 44px; height: 44px;
+            background: #4ade80;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,.5);
+        }
+
+        #main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        #streetview { flex: 2; position: relative; }
+        #map2d { flex: 1; border-top: 2px solid #3a3a3a; }
+
+        .hidden { display: none !important; }
+
+        /* Logo: first word in the text colour, second in the brand blue */
+        .logo { display: block; width: 100%; height: auto; color: #fff; }
+        #app-logo { padding: 16px 15px 4px; flex-shrink: 0; }
+        #app-logo .logo { max-width: 240px; }
+        .modal-logo .logo { max-width: 260px; margin-bottom: 14px; }
+        #closed-screen .logo { width: min(440px, 82vw); margin-bottom: 18px; }
+        #credits {
+            padding: 8px 15px; font-size: 10px; color: #888; flex-shrink: 0;
+            border-bottom: 1px solid #3a3a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        #credits a { color: #4ade80; text-decoration: none; }
+        #credits a:hover { text-decoration: underline; }
+        #help-links {
+            padding: 7px 15px; font-size: 12px; flex-shrink: 0; border-bottom: 1px solid #3a3a3a;
+            display: flex; gap: 14px; flex-wrap: wrap;
+        }
+        #help-links a { color: #4ade80; text-decoration: none; font-weight: bold; }
+        #help-links a:hover { text-decoration: underline; }
+        #points-status { color: #aaa; font-weight: normal; text-transform: none; letter-spacing: 0; }
+        .point-lost { color: #fca5a5; }
+
+        .legal { font-size: 11px; color: #aaa; line-height: 1.45; }
+        .legal p { margin-bottom: 6px; }
+        .legal a { color: #4ade80; }
+
+        .section { padding: 12px 15px; border-bottom: 1px solid #3a3a3a; flex-shrink: 0; }
+        .section-title {
+            font-size: 12px; font-weight: bold; color: #4ade80;
+            margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px;
+        }
+        summary.section-title { cursor: pointer; margin-bottom: 0; user-select: none; }
+        details[open] > summary.section-title { margin-bottom: 8px; }
+
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%; padding: 8px; background: #1a1a1a;
+            border: 1px solid #4a4a4a; border-radius: 4px;
+            color: #fff; font-size: 13px; margin-bottom: 6px;
+            transition: border-color .15s;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #4ade80; }
+        textarea { resize: vertical; min-height: 50px; }
+
+        button {
+            width: 100%; padding: 9px; background: #4ade80; color: #000;
+            border: none; border-radius: 4px; font-weight: bold;
+            cursor: pointer; font-size: 13px; margin-bottom: 6px;
+            transition: background .15s, transform .05s;
+        }
+        button:hover { background: #22c55e; }
+        button:active { transform: scale(.97); }
+        button:disabled { background: #4a4a4a; cursor: not-allowed; color: #888; }
+        button.secondary { background: #3a3a3a; color: #fff; }
+        button.secondary:hover { background: #4a4a4a; }
+        button.danger { background: #ef4444; color: #fff; }
+        button.danger:hover { background: #dc2626; }
+
+        #session-list { max-height: 180px; overflow-y: auto; overscroll-behavior: contain; }
+        .session-item {
+            padding: 8px; background: #3a3a3a; border-radius: 4px;
+            margin-bottom: 4px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background .15s;
+        }
+        .session-item:hover { background: #4a4a4a; }
+        .session-item.active { background: #4ade80; color: #000; }
+        .session-info { flex: 1; min-width: 0; }
+        .session-name { font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .session-points { font-size: 11px; opacity: .7; }
+        .delete-btn { padding: 4px 8px; font-size: 11px; width: auto; margin: 0; }
+
+        /* ── Points List (fills the free sidebar height) ── */
+        #points-section { flex: 1 1 0; min-height: 150px; display: flex; flex-direction: column; }
+        #points-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+        .point-item {
+            padding: 6px 8px; background: #3a3a3a; border-radius: 4px;
+            margin-bottom: 3px; font-size: 11px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background .15s;
+        }
+        .point-item:hover { background: #4a4a4a; }
+        .point-item.latest { background: #b91c1c; color: #fff; }
+        .point-item.latest .point-coords { color: #fff; }
+        .point-item.latest:hover { background: #991b1b; }
+        .point-item.playback-active { background: #2563eb !important; color: #fff; border-left: 3px solid #60a5fa; }
+        .point-item.playback-active .point-coords { color: #93c5fd; }
+        .point-item.playback-active .point-tag { color: #fbbf24; }
+        /* Camera turn on the spot (same position as the previous step) */
+        .point-item.rotation { background: #323232; margin-left: 10px; border-left: 3px solid #555; }
+        .point-item.rotation:hover { background: #444; }
+        .point-item.rotation.latest { background: #b91c1c; border-left-color: #ef4444; }
+        .point-item.has-tag { border-left: 3px solid #FF8C00; }
+        .point-left { flex: 1; min-width: 0; }
+        .point-coords { font-family: 'Courier New', monospace; color: #4ade80; }
+        .point-pov { color: #93c5fd; font-size: 10px; margin-left: 4px; white-space: nowrap; }
+        .point-item.latest .point-pov, .point-item.playback-active .point-pov { color: #fecaca; }
+        .point-tag { color: #FF8C00; margin-top: 2px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .point-actions { display: flex; gap: 4px; margin-left: 6px; flex-shrink: 0; }
+        .point-actions button {
+            width: 24px; height: 24px; padding: 0; margin: 0;
+            font-size: 12px; border-radius: 4px; line-height: 24px;
+            text-align: center;
+        }
+
+        /* ── Coords Overlay ── */
+        /* Overlays stay clear of Google's logo, notices and address box (attribution must remain visible) */
+        #coords-display {
+            position: absolute; bottom: 40px; left: 10px;
+            background: rgba(0,0,0,.85); padding: 8px 12px;
+            border-radius: 6px; font-family: 'Courier New', monospace;
+            font-size: 12px; z-index: 10; pointer-events: none;
+        }
+        .coord-label { color: #4ade80; font-weight: bold; }
+
+        /* ── Recording indicator ── */
+        #rec-indicator {
+            position: absolute; top: 58px; right: 10px;   /* under the fullscreen button */
+            background: rgba(239,68,68,.9); color: #fff; padding: 6px 14px;
+            border-radius: 20px; font-size: 12px; font-weight: bold;
+            z-index: 10; display: none; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+        /* ── Street View Point Overlay ── */
+        #sv-point-overlay {
+            position: absolute; top: 76px; left: 10px;
+            background: rgba(0,0,0,.85); padding: 8px 14px;
+            border-radius: 8px; z-index: 10; display: none;
+            border: 2px solid #4ade80; max-width: 200px;
+        }
+        #sv-point-overlay .sv-point-num {
+            color: #4ade80; font-weight: bold; font-size: 16px;
+            font-family: 'Courier New', monospace;
+        }
+        #sv-point-overlay .sv-point-tag {
+            color: #fbbf24; font-size: 14px; font-weight: 700; margin-top: 3px;
+            word-wrap: break-word;
+        }
+
+        /* ── Toast notifications ── */
+        #toast-container {
+            position: fixed; top: 10px; right: 10px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 6px;
+            pointer-events: none; max-width: 340px;
+        }
+        .toast {
+            padding: 10px 16px; border-radius: 6px; font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.5);
+            animation: toastIn .3s ease; transition: opacity .3s;
+        }
+        .toast.info { background: #2563eb; color: #fff; }
+        .toast.error { background: #ef4444; color: #fff; }
+        .toast.success { background: #22c55e; color: #000; }
+        @keyframes toastIn { from{opacity:0;transform:translateX(50px)} to{opacity:1;transform:none} }
+
+        /* ── Modals (tag edit, confirm) ── */
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.7); z-index: 500;
+            justify-content: center; align-items: center;
+        }
+        .modal.open { display: flex; animation: modalIn .15s ease; }
+        .modal-inner {
+            background: #2a2a2a; border: 2px solid #4ade80;
+            border-radius: 10px; padding: 20px; width: 90%; max-width: 400px;
+        }
+        .modal-inner h3 { color: #4ade80; margin-bottom: 12px; font-size: 14px; }
+        /* Licenses popup */
+        .modal-inner.wide { max-width: 780px; }
+        #legal-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+        #legal-tabs button { width: auto; flex: 1; }
+        /* Disclaimer at startup: covers everything, cannot be dismissed without answering */
+        #disclaimer-modal { z-index: 20000; background: rgba(0,0,0,.93); }
+        #disclaimer-actions { display: flex; gap: 8px; }
+        #disclaimer-actions button { flex: 1; padding: 12px; font-size: 14px; }
+        #closed-screen {
+            height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px; padding: 24px; text-align: center;
+        }
+        /* Plain reading text (the license texts below stay monospace: they are pre-formatted) */
+        #disclaimer-modal #disclaimer-text { font-family: inherit; font-size: 13px; line-height: 1.55; }
+        #legal-text, #disclaimer-text {
+            height: 60vh; overflow: auto; margin-bottom: 8px; padding: 12px;
+            background: #1a1a1a; border: 1px solid #4a4a4a; border-radius: 4px;
+            font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.45;
+            color: #ddd; white-space: pre-wrap; overflow-wrap: anywhere;
+        }
+        @keyframes modalIn { from{opacity:0} to{opacity:1} }
+
+        /* ── Note overlay (playback) ── */
+        #note-overlay {
+            /* Centred in the free strip between Google's address box and the fullscreen button */
+            position: absolute; top: 12px; left: 215px; right: 64px; margin: 0 auto;
+            width: fit-content; max-width: 500px;
+            background: #fbbf24; padding: 14px 24px; border-radius: 10px;
+            border: 3px solid #fff; z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,.6); display: none;
+        }
+        #note-content { color: #1a1a1a; font-size: 17px; font-weight: 700; line-height: 1.4; text-align: center; }
+        #note-content::before { content: '🏷️ '; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #4a4a4a; border-radius: 3px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed; inset: 0; width: 100%; min-width: 0;
+                transform: translateX(-100%); z-index: 150;
+                padding-top: 54px; /* keep the ☰ button clear of the first section */
+            }
+            #sidebar.open { transform: translateX(0); }
+            /* Below Google's address box; back to the top corner while the sidebar is open */
+            #sidebar-toggle { display: block; top: 76px; }
+            body:has(#sidebar.open) #sidebar-toggle { top: 10px; }
+            #sv-point-overlay { left: 64px; max-height: 64px; overflow: hidden; }
+            #note-overlay { top: 150px; left: 10px; right: 10px; }
+            #coords-display { bottom: 36px; left: 6px; font-size: 10px; padding: 5px 8px; }
+            #rec-indicator { font-size: 10px; padding: 4px 10px; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #sidebar { width: 280px; min-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+<svg id="logo-defs" style="display:none" aria-hidden="true"><symbol id="logo-art" viewBox="0 0 1531.8 113.8"><path fill="currentColor" d="M81.4 112.8Q53.6 112.8 35.8 107.3Q18 101.8 9.5 90.3Q1 78.8 1 61Q1 42.9 9.5 31.5Q18 20.1 35.8 14.6Q53.6 9.1 81.4 9.1Q109.2 9.1 127 14.6Q144.7 20.1 153.2 31.5Q161.8 42.9 161.8 61Q161.8 78.8 153.2 90.3Q144.7 101.8 127 107.3Q109.2 112.8 81.4 112.8ZM81.4 92.6Q97.5 92.6 108.3 90.8Q119.2 89 125.7 85.1Q132.3 81.3 135.1 75.3Q137.9 69.4 137.9 61Q137.9 52.5 135.1 46.5Q132.3 40.6 125.7 36.7Q119.2 32.9 108.3 31.1Q97.5 29.3 81.4 29.3Q59.9 29.3 47.5 32.5Q35.1 35.8 29.8 42.8Q24.5 49.7 24.5 61Q24.5 72.2 29.8 79.2Q35.1 86.2 47.5 89.4Q59.9 92.6 81.4 92.6ZM319.1 83.5Q319.1 91.2 316 96.8Q313 102.3 305.9 105.9Q298.8 109.4 286.7 111.1Q274.5 112.8 256.2 112.8Q244.4 112.8 231.5 111.7Q218.7 110.7 206.9 109Q195.2 107.3 186.3 105.3L189.7 86.3Q197 87.9 205.5 89.3Q213.9 90.8 223.2 91.8Q232.5 92.9 242.3 93.6Q252.1 94.2 262.2 94.2Q273.1 94.2 279.9 93.6Q286.7 93 290.4 91.6Q294.1 90.3 295.4 88.2Q296.8 86 296.8 82.9Q296.8 78.4 295.1 76.3Q293.3 74.2 289.9 73.3Q286.4 72.3 281.2 71.8L225.1 67.7Q211 66.9 202.1 63.7Q193.2 60.4 188.9 54.5Q184.7 48.5 184.7 39.3Q184.7 28.5 191.1 21.9Q197.5 15.3 211.6 12.3Q225.7 9.3 248.5 9.3Q255.5 9.3 263.9 9.8Q272.3 10.3 281.2 11.2Q290.2 12.1 298.7 13.3Q307.2 14.6 314.3 16.1L310.6 34Q304.2 32.7 296.2 31.6Q288.2 30.5 279.3 29.7Q270.3 28.9 261.2 28.3Q252 27.8 243.3 27.8Q231.7 27.8 224.5 28.4Q217.3 28.9 213.5 30.2Q209.7 31.4 208.3 33.5Q207 35.6 207 38.7Q207 42.5 208.9 44.6Q210.8 46.6 214.5 47.4Q218.3 48.2 224 48.8L279.1 52.9Q289 53.5 296.5 55.5Q304 57.5 309 61.1Q314 64.7 316.5 70.2Q319.1 75.7 319.1 83.5ZM368.5 111H345V11H368.5ZM511.9 70.3V111H490V73.6Q490 67 487.2 62.5Q484.4 58.1 478.4 55.8Q472.4 53.5 463 53.5Q450.5 53.5 434.1 57.3Q417.8 61.1 399.3 67.8V55Q405.9 51.6 413.8 48.1Q421.8 44.6 431 41.6Q440.1 38.7 450 36.9Q459.8 35 470.1 35Q483.4 35 492.8 38.6Q502.1 42.2 507 50Q511.9 57.7 511.9 70.3ZM397 111V36.9H416.1L418.9 53.7V111ZM630.6 54.7H531.3V36.9H630.6ZM548.4 75.1V39.6L552.7 17.9H570.3V73.1Q570.3 81.1 572.6 85.7Q574.9 90.4 580.6 92.3Q586.3 94.3 596.3 94.3Q606.7 94.3 615.2 92.9Q623.8 91.6 631.6 89.9L635.8 107.5Q627.5 109.5 616.7 111.2Q605.9 112.8 594.5 112.8Q578.7 112.8 568.5 109.2Q558.3 105.5 553.4 97.2Q548.4 88.9 548.4 75.1Z"/><path fill="#7B95DD" d="M712.5 31.1H652.7V11H795.8V31.1H736V111H712.5ZM814.2 111V36.9H833.4L836.1 57.1V111ZM890.6 35V54.8Q880.4 54.8 871.4 55.9Q862.4 56.9 853.7 59.3Q845 61.7 836 65.5Q826.9 69.4 816.6 74.8V62.8Q822.5 58.3 830.4 53.5Q838.2 48.7 847.7 44.5Q857.2 40.3 868 37.7Q878.8 35 890.6 35ZM1002.4 42.1 1024.4 40.5V111H1005.1L1002.4 94ZM1024.4 40.4 1015.3 57.4Q1008.6 56.3 999.3 55.4Q990.1 54.4 980.1 53.8Q970.1 53.2 960.9 53.2Q950.7 53.2 943.6 55.2Q936.5 57.3 932.8 61.8Q929.1 66.2 929.1 73.8Q929.1 84.8 935.2 89.6Q941.4 94.3 955.3 94.3Q965.8 94.3 976.9 92Q988.1 89.7 999.7 85.9Q1011.3 82.1 1022.9 77.5V89.9Q1016.3 93.5 1008.3 97.5Q1000.2 101.5 991 104.8Q981.7 108.2 971.7 110.3Q961.6 112.4 951.1 112.4Q937.6 112.4 927.7 108.6Q917.9 104.8 912.5 96.4Q907.2 88 907.2 74.5Q907.2 59.6 914.2 51.1Q921.3 42.6 933.9 39Q946.5 35.4 963.1 35.4Q981.2 35.4 996.8 37Q1012.4 38.6 1024.4 40.4ZM1049 73.7Q1049 60.1 1055.6 51.6Q1062.2 43.1 1076.3 39.1Q1090.4 35 1112.7 35Q1126.6 35 1139.3 36.6Q1152.1 38.2 1161.6 40.5L1157.1 58.2Q1149.5 56.5 1137.9 55.1Q1126.4 53.6 1109.5 53.6Q1095.6 53.6 1087 55.4Q1078.5 57.2 1074.7 61.6Q1070.9 66 1070.9 73.7Q1070.9 81.5 1074.7 86Q1078.5 90.4 1087 92.2Q1095.6 94 1109.5 94Q1126.4 94 1137.9 92.6Q1149.5 91.1 1157.1 89.5L1161.6 107.1Q1152.1 109.4 1139.6 111Q1127.1 112.6 1112.7 112.6Q1090.4 112.6 1076.3 108.6Q1062.2 104.5 1055.6 95.9Q1049 87.3 1049 73.7ZM1208.9 1V111H1187V1ZM1247.1 80.5H1207.1V62.6H1247.1ZM1300.9 36.9 1244.6 76.8 1244.1 65.6 1302.8 111H1272.9L1232.4 80.5V62.9L1271.2 36.9ZM1375.1 95.4Q1386 95.4 1395.2 94.6Q1404.4 93.9 1411.3 92.9Q1418.3 91.8 1422.3 91.1L1426.8 107.1Q1420.2 108.8 1411.3 110Q1402.5 111.3 1392.6 112.1Q1382.8 112.8 1373.2 112.8Q1352.6 112.8 1339.2 108.9Q1325.9 105.1 1319.4 96.5Q1312.9 87.9 1312.9 73.9Q1312.9 60 1319.7 51.4Q1326.6 42.9 1339.6 39Q1352.6 35 1371.2 35Q1384.1 35 1394.7 36.9Q1405.3 38.7 1412.9 42.6Q1420.6 46.6 1424.8 53.2Q1428.9 59.7 1428.9 69.2Q1428.9 70.6 1428.8 72.7Q1428.7 74.7 1428.6 76.5Q1428.5 78.3 1428.3 79.2H1324.7V67.4H1411L1407.6 72Q1407.6 64.4 1404.7 59.6Q1401.7 54.7 1393.7 52.4Q1385.7 50 1370.4 50Q1357.1 50 1349 52.2Q1341 54.3 1337.5 59.3Q1334 64.3 1334 73Q1334 79.9 1336.1 84.4Q1338.2 88.8 1343 91.2Q1347.8 93.6 1355.6 94.5Q1363.5 95.4 1375.1 95.4ZM1454.4 111V36.9H1473.6L1476.3 57.1V111ZM1530.8 35V54.8Q1520.6 54.8 1511.6 55.9Q1502.6 56.9 1493.9 59.3Q1485.2 61.7 1476.2 65.5Q1467.1 69.4 1456.8 74.8V62.8Q1462.7 58.3 1470.5 53.5Q1478.4 48.7 1487.9 44.5Q1497.4 40.3 1508.2 37.7Q1519 35 1530.8 35Z"/></symbol></svg>
+
+<button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+<div id="container">
+    <div id="sidebar">
+        <div id="app-logo"><svg class="logo" viewBox="0 0 1531.8 113.8" role="img" aria-label="OSInt Tracker"><use href="#logo-art"/></svg></div>
+        <div id="credits">Andrea Cumini - <a href="mailto:andrea@osintinfo.net">andrea@osintinfo.net</a> - <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></div>
+        <div id="help-links"><a href="/manual" target="_blank" rel="noopener">📖 User manual</a><a href="/manual#api-key" target="_blank" rel="noopener">🔑 How to get an API key</a><a href="#" onclick="openLegal(); return false;">⚖️ Licenses</a></div>
+        <div class="section">
+            <div class="section-title">Search Location</div>
+            <input type="text" id="search-input" placeholder="Search for a place" onkeypress="if(event.key==='Enter') searchLocation()">
+            <button onclick="searchLocation()">Search</button>
+        </div>
+        <div class="section hidden" id="points-section">
+            <div class="section-title">Steps (<span id="points-count">0</span>) <span id="points-status"></span></div>
+            <div id="points-list"></div>
+        </div>
+        <div class="section hidden" id="session-controls">
+            <div class="section-title">Session Controls</div>
+            <button id="start-rec-btn" onclick="startRecording()">⏺ Start Rec</button>
+            <button id="stop-recording-btn" class="danger hidden" onclick="stopRecording()">⬛ Stop Recording</button>
+            <button class="secondary" onclick="startPlayback()">▶ Play Route</button>
+        </div>
+        <div class="section hidden" id="playback-controls">
+            <div class="section-title">Playback</div>
+            <div style="display:flex;gap:5px;margin-bottom:6px;">
+                <button style="flex:1" onclick="playbackPrevious()" title="Left arrow">◀ Prev</button>
+                <button style="flex:1" onclick="playbackNext()" title="Right arrow">Next ▶</button>
+            </div>
+            <div style="display:flex;gap:5px;margin-bottom:6px;">
+                <button style="flex:1" id="autoplay-btn" onclick="toggleAutoPlay()">▶▶ Auto Play</button>
+                <button style="flex:1" class="danger" onclick="stopPlayback()">■ Stop</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:11px;color:#aaa;white-space:nowrap;">Speed:</span>
+                <select id="autoplay-speed" style="flex:1;padding:4px;font-size:12px;" onchange="if(autoPlaying) startAutoPlay()">
+                    <option value="500">0.5s</option>
+                    <option value="1000">1s</option>
+                    <option value="2000" selected>2s</option>
+                    <option value="3000">3s</option>
+                    <option value="5000">5s</option>
+                </select>
+            </div>
+            <div id="playback-info" style="text-align:center;margin-top:6px;font-size:12px;"></div>
+        </div>
+        <div class="section">
+            <div class="section-title">Sessions</div>
+            <input type="text" id="session-name-input" placeholder="New session name" onkeypress="if(event.key==='Enter') createSession()">
+            <button onclick="createSession()">Create Session</button>
+            <div id="session-list"></div>
+        </div>
+        <details class="section" id="api-key-section">
+            <summary class="section-title">Google Maps API Key</summary>
+            <div style="position:relative;">
+                <input type="password" id="api-key-input" placeholder="Enter API key" style="padding-right:36px;" onkeypress="if(event.key==='Enter') saveApiKey()">
+                <button onclick="toggleApiKeyVisibility()" style="position:absolute;right:2px;top:2px;width:32px;height:32px;padding:0;margin:0;background:transparent;color:#aaa;font-size:14px;border-radius:3px;" title="Show/Hide">👁</button>
+            </div>
+            <button onclick="saveApiKey()">Save API Key</button>
+            <div class="legal">No key yet? <a href="/manual#api-key" target="_blank" rel="noopener">How to get one, step by step</a>.</div>
+        </details>
+        <details class="section" id="about-section">
+            <summary class="section-title">About / Legal</summary>
+            <div class="legal">
+                <p><b>OSInt Tracker</b><br>Copyright © 2024-2026 Andrea Cumini - <a href="mailto:andrea@osintinfo.net">andrea@osintinfo.net</a> - <a href="https://www.osintinfo.net" target="_blank" rel="noopener">www.osintinfo.net</a></p>
+                <p>Free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU GPL v3</a> with additional terms (author attribution): <a href="#" onclick="openLegal(); return false;">read the licenses</a>. This program comes with ABSOLUTELY NO WARRANTY: see the <a href="#" onclick="openLegal('disclaimer'); return false;">disclaimer</a> you accepted at startup.</p>
+                <p>This application includes Google Maps features and content. Use of Google Maps features and content is subject to the <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noopener">Google Maps/Google Earth Additional Terms of Service</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+                <p>Not affiliated with or endorsed by Google. Google Maps and Street View are trademarks of Google LLC.</p>
+            </div>
+        </details>
+    </div>
+
+    <div id="main-content">
+        <div id="streetview">
+            <div id="coords-display">
+                <span class="coord-label">LAT:</span> <span id="lat-display">-</span><br>
+                <span class="coord-label">LNG:</span> <span id="lng-display">-</span>
+            </div>
+            <div id="sv-point-overlay">
+                <div class="sv-point-num" id="sv-point-num"></div>
+                <div class="sv-point-tag" id="sv-point-tag"></div>
+            </div>
+            <div id="rec-indicator">● REC</div>
+            <div id="note-overlay"><div id="note-content"></div></div>
+        </div>
+        <div id="map2d"></div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<div id="tag-modal" class="modal" onclick="if(event.target===this) closeTagModal()">
+    <div class="modal-inner">
+        <h3>📌 Edit Tag — Step #<span id="tag-modal-idx"></span></h3>
+        <textarea id="tag-modal-text" placeholder="Enter tag/note for this point..." onkeydown="if(event.key==='Enter' && (event.ctrlKey || event.metaKey)) saveTag()"></textarea>
+        <button onclick="saveTag()" title="Ctrl+Enter">💾 Save Tag</button>
+        <button class="secondary" onclick="closeTagModal()">Cancel</button>
+    </div>
+</div>
+
+<div id="disclaimer-modal" class="modal">
+    <div class="modal-inner wide">
+        <div class="modal-logo"><svg class="logo" viewBox="0 0 1531.8 113.8" role="img" aria-label="OSInt Tracker"><use href="#logo-art"/></svg></div>
+        <h3>⚠️ Terms of use and disclaimer</h3>
+        <pre id="disclaimer-text"></pre>
+        <div id="disclaimer-actions">
+            <button onclick="answerDisclaimer(true)">I accept</button>
+            <button class="danger" onclick="answerDisclaimer(false)">I do not accept</button>
+        </div>
+    </div>
+</div>
+
+<div id="legal-modal" class="modal" onclick="if(event.target===this) closeLegal()">
+    <div class="modal-inner wide">
+        <h3>⚖️ Licenses</h3>
+        <div id="legal-tabs">
+            <button data-doc="disclaimer" onclick="showLegal('disclaimer')">Disclaimer</button>
+            <button data-doc="notice" onclick="showLegal('notice')">Notice</button>
+            <button data-doc="license" onclick="showLegal('license')">GNU GPL v3</button>
+            <button data-doc="third-party" onclick="showLegal('third-party')">Third-party software</button>
+        </div>
+        <pre id="legal-text"></pre>
+        <button class="secondary" onclick="closeLegal()">Close</button>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal" onclick="if(event.target===this) closeConfirm(false)">
+    <div class="modal-inner">
+        <h3 id="confirm-text"></h3>
+        <button id="confirm-ok" class="danger" onclick="closeConfirm(true)">Delete</button>
+        <button class="secondary" onclick="closeConfirm(false)">Cancel</button>
+    </div>
+</div>
+
+<script>
+    // ── State ──
+    let map2d, streetView, geocoder;
+    // Panorama currently shown: Google's ID and where it is
+    let currentPano = null;
+    let currentLat = null, currentLng = null;
+    let currentSession = null;
+    let apiKey = '';
+    let mapsRequested = false;
+    let markers2d = [];
+    let markersById = new Map();   // point id → { marker, iw }
+    let polyline2d = null;
+    let currentMarker = null;      // red dot: where you are
+    let currentCone = null;        // cone: what the camera frames
+    let playbackActive = false, playbackIndex = 0;
+    let autoSaveEnabled = false;
+    let pointsSavedCount = 0;
+    let lastSavedPano = null;      // panorama of the last saved step
+    let lastSavedPov = null;       // camera of the last saved step {heading, pitch, zoom}
+    // Local caches: sessions list and steps of the current session
+    let sessionsCache = [];
+    let sessionPointsCache = [];
+    // Where each panorama is: pano ID → {lat, lng}, or null when Google no longer has it.
+    // Only the IDs are stored on disk (Google allows keeping those): the coordinates are
+    // asked to Google when a session is opened and live in this page's memory only
+    const panoPositions = new Map();
+    const LOOKUP_PARALLEL = 6;
+    // Save queue to prevent concurrent saves
+    let saveInProgress = false;
+    let savePending = false;
+    // Camera turn recording
+    const TURN_MIN_DEG = 10;        // new step when the camera turned at least this much
+    const TURN_SETTLE_MS = 700;     // ...and stayed still for this long
+    let povDebounce = null;
+    let povAnim = null;             // playback camera tween (frame id)
+    let povAnimTimer = null;        // ...and its fallback timer
+    // Street View panorama lookups
+    let svService = null;
+    let gotoSeq = 0;                // only the latest lookup may move the camera
+    let headingMarkerTimer = null;
+    // Programmatic moves: panorama the camera is travelling to
+    let travelTo = null;
+    let travelTimer = null;
+    // Recording resumes only once the camera is back on the last step
+    let recordFromPano = null;
+    let recordFromTimer = null;
+    // Tag modal
+    let tagEditPointId = null;
+    let tagEditIndex = 0;
+    // Step clicked in the list: owns the SV overlay while the camera stays on it
+    let focusedPointId = null;
+    // Confirm modal
+    let confirmResolve = null;
+    // InfoWindows for map markers
+    let infoWindows2d = [];
+    let openInfoWindow = null;
+    // Auto-play
+    let autoPlayInterval = null;
+    let autoPlaying = false;
+
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    // ── Toast Notifications (non-blocking, duration 0 = stays) ──
+    function showToast(msg, type = 'info', duration = 3000) {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        c.appendChild(t);
+        if (duration > 0) setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, duration);
+    }
+
+    function setVisible(id, visible) {
+        document.getElementById(id).classList.toggle('hidden', !visible);
+    }
+
+    // ── Confirm dialog (non-blocking replacement for confirm()) ──
+    function confirmDialog(msg) {
+        if (confirmResolve) closeConfirm(false);
+        document.getElementById('confirm-text').textContent = msg;
+        document.getElementById('confirm-modal').classList.add('open');
+        document.getElementById('confirm-ok').focus();
+        return new Promise(resolve => { confirmResolve = resolve; });
+    }
+
+    function closeConfirm(result) {
+        document.getElementById('confirm-modal').classList.remove('open');
+        if (confirmResolve) {
+            const resolve = confirmResolve;
+            confirmResolve = null;
+            resolve(result);
+        }
+    }
+
+    // ── Licenses popup: Notice (attribution terms), GPL text, third-party software ──
+    function openLegal(doc = 'notice') {
+        document.getElementById('legal-modal').classList.add('open');
+        showLegal(doc);
+    }
+
+    function closeLegal() {
+        document.getElementById('legal-modal').classList.remove('open');
+    }
+
+    async function showLegal(doc) {
+        document.querySelectorAll('#legal-tabs button').forEach(b => b.classList.toggle('secondary', b.dataset.doc !== doc));
+        const pre = document.getElementById('legal-text');
+        pre.textContent = 'Loading…';
+        try {
+            const res = await fetch(`/legal/${doc}`);
+            if (res.ok) pre.textContent = await res.text();
+            else if (doc === 'third-party') pre.textContent = 'You are running the program from its source code: Python, Flask and the other packages are installed separately on your computer, each under its own license.' + String.fromCharCode(10, 10) + 'The packaged program (the executable) includes them, and shows the full list with their licenses here.';
+            else pre.textContent = 'This text is in the file distributed with the program.';
+        } catch (e) {
+            pre.textContent = 'Cannot load the text: is the server running?';
+        }
+        pre.scrollTop = 0;
+    }
+
+    // ── Sidebar toggle (mobile) ──
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // ── Init ──
+    const API_VERSION = 3;          // must match the server (app.py)
+
+    async function init() {
+        console.log('=== INIT ===');
+
+        // The disclaimer comes first: until it is accepted the server answers nothing else
+        const terms = await loadDisclaimer();
+        if (terms === null) {
+            showToast('Cannot connect to server. Make sure Flask is running on port 5000.', 'error', 0);
+            return;
+        }
+        if (!terms.accepted && !await askDisclaimer(terms.text)) return;   // declined: the program has closed
+
+        const [keyOk, sessionsOk, serverApi] = await Promise.all([loadApiKey(), loadSessions(), loadServerVersion()]);
+        if (!keyOk && !sessionsOk) {
+            showToast('Cannot connect to server. Make sure Flask is running on port 5000.', 'error', 0);
+            return;
+        }
+        if (serverApi !== API_VERSION) {
+            // The page was updated but the server process is still the previous one (or vice versa)
+            showToast('Server and page versions differ: restart the server from the launcher (■ then ▶) and reload this page.', 'error', 0);
+        }
+        if (apiKey) {
+            loadGoogleMapsAPI();
+        } else {
+            document.getElementById('api-key-section').open = true;
+            showToast('Enter your Google Maps API key', 'info', 5000);
+        }
+    }
+
+    // ── Disclaimer shown each time the program starts ──
+    let disclaimerResolve = null;
+
+    // {accepted, text}, or null when the server cannot be reached
+    async function loadDisclaimer() {
+        try {
+            const res = await fetch('/api/disclaimer');
+            if (!res.ok) return { accepted: true };      // server of a previous version: it has no disclaimer
+            return await res.json();
+        } catch(e) {
+            return null;
+        }
+    }
+
+    // Resolves true when accepted, false when declined
+    function askDisclaimer(text) {
+        document.getElementById('disclaimer-text').textContent = text;
+        document.getElementById('disclaimer-modal').classList.add('open');
+        return new Promise(resolve => { disclaimerResolve = resolve; });
+    }
+
+    async function answerDisclaimer(accept) {
+        try {
+            const res = await fetch('/api/disclaimer', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accept })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        } catch(e) {
+            // Declining closes the program in any case; accepting needs the server's confirmation
+            if (accept) { showToast('Cannot reach the server: ' + e.message, 'error', 5000); return; }
+        }
+
+        if (accept) document.getElementById('disclaimer-modal').classList.remove('open');
+        else showClosedScreen();
+        if (disclaimerResolve) disclaimerResolve(accept);
+        disclaimerResolve = null;
+    }
+
+    // Declined: the server (and the launcher) shut down, this page has nothing left to show
+    function showClosedScreen() {
+        document.title = 'Closed - OSInt Tracker';
+        const art = document.getElementById('logo-defs').outerHTML;
+        const logo = document.querySelector('#app-logo').innerHTML;
+        document.body.innerHTML = `${art}
+            <div id="closed-screen">
+                ${logo}
+                <p>You did not accept the terms of use.</p>
+                <p><b>The program has been closed.</b> You can close this window.</p>
+                <p class="legal">To use the program, start it again and accept the terms.</p>
+            </div>`;
+    }
+
+    async function loadServerVersion() {
+        try {
+            const data = await (await fetch('/api/health')).json();
+            return data.api || 1;
+        } catch(e) {
+            return null;
+        }
+    }
+
+    // ── Google Maps ──
+    function loadGoogleMapsAPI() {
+        mapsRequested = true;
+        window.initMaps = initMaps;
+        window.gm_authFailure = () => {
+            document.getElementById('api-key-section').open = true;
+            showToast('Google Maps rejected the API key', 'error', 8000);
+        };
+        const s = document.createElement('script');
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMaps`;
+        s.async = true; s.defer = true;
+        s.onerror = () => showToast('Failed to load Google Maps API', 'error', 8000);
+        document.head.appendChild(s);
+    }
+
+    function initMaps() {
+        const startPos = { lat: 45.4384, lng: 10.9916 };
+
+        // No position here: the start panorama is chosen below
+        streetView = new google.maps.StreetViewPanorama(
+            document.getElementById('streetview'),
+            { pov: { heading: 0, pitch: 0 }, zoom: 1 }
+        );
+        svService = new google.maps.StreetViewService();
+
+        map2d = new google.maps.Map(document.getElementById('map2d'), {
+            center: startPos, zoom: 18, mapTypeId: 'hybrid',
+            tilt: 0, heading: 0, mapTypeControl: false, streetViewControl: false
+        });
+
+        // Keep 2D view (no tilt)
+        map2d.addListener('tilt_changed', () => { if (map2d.getTilt() !== 0) map2d.setTilt(0); });
+
+        geocoder = new google.maps.Geocoder();
+
+        // Click map → move SV
+        map2d.addListener('click', e => gotoLocation(e.latLng));
+
+        // Follow Street View: both events, the location is ready on one or the other
+        streetView.addListener('position_changed', onPanoramaMoved);
+        streetView.addListener('pano_changed', onPanoramaMoved);
+
+        // Camera turns: rotate the position arrow, record the turn once it settles
+        streetView.addListener('pov_changed', onPovChanged);
+        streetView.addListener('zoom_changed', onPovChanged);
+
+        if (currentSession && sessionPointsCache.length) {
+            // A session selected before the maps were ready: go to it and draw it now
+            focusLastPoint();
+            resolvePositions(currentSession);
+        } else {
+            gotoLocation(startPos);
+        }
+        console.log('✓ Maps initialized');
+    }
+
+    // Move Street View to the nearest *official Google* panorama around a location.
+    // A plain setPosition() takes the nearest panorama of any kind, and user-contributed
+    // photospheres are often geotagged far from where they were shot: the view would show
+    // one place and the map another
+    function gotoLocation(latLng) {
+        const seq = ++gotoSeq;
+        svService.getPanorama({
+            location: latLng, radius: 50,
+            preference: google.maps.StreetViewPreference.NEAREST,
+            sources: [google.maps.StreetViewSource.GOOGLE]
+        }).then(({ data }) => {
+            if (seq === gotoSeq) streetView.setPano(data.location.pano);
+        }).catch(() => {
+            // Nothing official within 50 m: take whatever is there
+            if (seq === gotoSeq) streetView.setPosition(latLng);
+        });
+    }
+
+    // ── Panorama positions (memory only) ──
+    // Location of one panorama, or null if Google has nothing for the request.
+    // Transient failures are retried; a failed lookup is never treated as permanent
+    async function panoLookup(request) {
+        for (let attempt = 0; ; attempt++) {
+            try {
+                const { data } = await svService.getPanorama(request);
+                return data.location;
+            } catch (e) {
+                if (e.code === 'ZERO_RESULTS' || attempt >= 2) return null;
+                await sleep(400 * (attempt + 1));
+            }
+        }
+    }
+
+    function setLocating(text) {
+        document.getElementById('points-status').textContent = text;
+    }
+
+    // Copy the known panorama positions onto the steps of the current session
+    function hydratePositions() {
+        for (const p of sessionPointsCache) {
+            const pos = panoPositions.get(p.pano);
+            p.lat = pos ? pos.lat : null;
+            p.lng = pos ? pos.lng : null;
+        }
+    }
+
+    // Ask Google where the panoramas of the current session are (a few at a time), then redraw
+    async function resolvePositions(sessionId) {
+        if (!svService) return;                  // maps not ready yet: initMaps() calls this again
+        const missing = [...new Set(sessionPointsCache.map(p => p.pano))].filter(pano => !panoPositions.has(pano));
+        if (missing.length) {
+            let next = 0, done = 0;
+            setLocating(`· locating 0/${missing.length}`);
+            const worker = async () => {
+                while (next < missing.length && sessionId === currentSession) {
+                    const pano = missing[next++];
+                    const loc = await panoLookup({ pano });
+                    panoPositions.set(pano, loc ? { lat: loc.latLng.lat(), lng: loc.latLng.lng() } : null);
+                    if (sessionId === currentSession) setLocating(`· locating ${++done}/${missing.length}`);
+                }
+            };
+            await Promise.all(Array.from({ length: Math.min(LOOKUP_PARALLEL, missing.length) }, worker));
+        }
+        if (sessionId !== currentSession) return;
+        setLocating('');
+        hydratePositions();
+        renderSessionPoints();
+        if (playbackActive) updatePlaybackUI();
+
+        const lost = sessionPointsCache.filter(p => p.lat == null).length;
+        if (lost) {
+            showToast(`${lost} step(s) use a panorama Google no longer provides`, 'error', 6000);
+            // The session was opened on its last step: if that one is gone, show the last one that still exists
+            const last = sessionPointsCache[sessionPointsCache.length - 1];
+            const lastOk = sessionPointsCache.findLast(p => p.lat != null);
+            if (last.lat == null && lastOk && !playbackActive) moveCameraTo(lastOk, false);
+        }
+    }
+
+    // Position on the map: a red dot where you are...
+    function positionIcon() {
+        return { path: google.maps.SymbolPath.CIRCLE, scale: 6,
+                 fillColor: '#FF0000', fillOpacity: 1, strokeColor: '#FFF', strokeWeight: 2 };
+    }
+
+    // ...and a cone for what the camera frames: it points where the camera looks and is as
+    // wide as the field of view, which halves at every zoom level (180° at zoom 0, 90° at 1, 45° at 2)
+    const CONE_RADIUS = 52;         // pixels
+
+    function coneIcon(heading, zoom) {
+        const fov = Math.max(12, Math.min(170, 180 / Math.pow(2, zoom ?? 1)));
+        const half = fov / 2 * Math.PI / 180;
+        const x = (CONE_RADIUS * Math.sin(half)).toFixed(1);
+        const y = (-CONE_RADIUS * Math.cos(half)).toFixed(1);
+        // Sector drawn pointing up (north) with its tip on the position, then rotated to the heading
+        return { path: `M 0,0 L -${x},${y} A ${CONE_RADIUS},${CONE_RADIUS} 0 0,1 ${x},${y} Z`,
+                 scale: 1, rotation: heading, anchor: new google.maps.Point(0, 0),
+                 fillColor: '#FF0000', fillOpacity: .3, strokeColor: '#FF0000', strokeOpacity: .9, strokeWeight: 1.5 };
+    }
+
+    function onPanoramaMoved() {
+        updateCoordinates();
+        evaluateSave();
+    }
+
+    function updateCoordinates() {
+        // The location describes the panorama actually shown: while a move is in
+        // progress it is still the previous one, and updates when the new one loads
+        const loc = streetView.getLocation();
+        if (!loc || !loc.latLng || !loc.pano) return;
+
+        const moved = loc.pano !== currentPano;
+        if (moved) {
+            travelTo = null;                     // arrived somewhere
+            clearTimeout(travelTimer);
+        }
+        currentPano = loc.pano;
+        currentLat = loc.latLng.lat();
+        currentLng = loc.latLng.lng();
+        panoPositions.set(currentPano, { lat: currentLat, lng: currentLng });
+        document.getElementById('lat-display').textContent = currentLat.toFixed(7);
+        document.getElementById('lng-display').textContent = currentLng.toFixed(7);
+
+        if (map2d) {
+            if (!currentMarker) {
+                // Neither takes clicks: a click there must reach the map or the step underneath.
+                // The cone sits below the step markers, the dot above everything
+                currentCone = new google.maps.Marker({
+                    position: loc.latLng, map: map2d, clickable: false, zIndex: 0,
+                    icon: coneIcon(streetView.getPov().heading, streetView.getZoom())
+                });
+                currentMarker = new google.maps.Marker({
+                    position: loc.latLng, map: map2d, clickable: false, zIndex: 9999,
+                    icon: positionIcon()
+                });
+            } else {
+                currentMarker.setPosition(loc.latLng);
+                currentCone.setPosition(loc.latLng);
+                updateHeadingMarker();
+            }
+            // The map follows you at every move, whether you are recording or not
+            if (moved) map2d.panTo(loc.latLng);
+        }
+
+        // Show nearest step info on Street View
+        updateStreetViewOverlay();
+    }
+
+    // Distance from the camera to a step (0 when it is the panorama being shown)
+    function distanceToStep(p) {
+        if (p.pano === currentPano) return 0;
+        if (p.lat == null || currentLat === null) return Infinity;
+        return distanceMeters(currentLat, currentLng, p.lat, p.lng);
+    }
+
+    function updateStreetViewOverlay() {
+        if (playbackActive) return;          // updatePlaybackUI() owns the overlay during playback
+        const overlay = document.getElementById('sv-point-overlay');
+        if (!sessionPointsCache.length || currentPano === null) {
+            overlay.style.display = 'none';
+            focusedPointId = null;
+            return;
+        }
+
+        let closest = null, closestIdx = -1, minDist = Infinity;
+
+        // The step clicked in the list wins while the camera is on it (or still travelling there);
+        // once the camera has arrived somewhere else, the focus is dropped
+        const fi = focusedPointId !== null ? sessionPointsCache.findIndex(p => p.id === focusedPointId) : -1;
+        if (fi === -1) focusedPointId = null;
+        else {
+            const d = distanceToStep(sessionPointsCache[fi]);
+            if (d < 15 || travelTo) { closest = sessionPointsCache[fi]; closestIdx = fi; minDist = Math.min(d, 14); }
+            else focusedPointId = null;
+        }
+
+        // Otherwise the closest step within 15 meters; among steps on the same
+        // spot keep the first one unless a later one carries a tag
+        if (!closest) sessionPointsCache.forEach((p, i) => {
+            const d = distanceToStep(p);
+            if (d < minDist - 0.5 || (closest && Math.abs(d - minDist) <= 0.5 && p.note && !closest.note)) {
+                minDist = d; closest = p; closestIdx = i;
+            }
+        });
+
+        if (closest && minDist < 15) {
+            document.getElementById('sv-point-num').textContent = `📍 Step #${closestIdx + 1}`;
+            const tagEl = document.getElementById('sv-point-tag');
+            if (closest.note) {
+                tagEl.textContent = '🏷️ ' + closest.note;
+                tagEl.style.display = 'block';
+            } else {
+                tagEl.style.display = 'none';
+            }
+            overlay.style.display = 'block';
+        } else {
+            overlay.style.display = 'none';
+        }
+    }
+
+    // ── Distance in meters between two lat/lng ──
+    function distanceMeters(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // ── Camera (POV) helpers ──
+    function currentPov() {
+        const pov = streetView.getPov();
+        return { heading: ((pov.heading % 360) + 360) % 360, pitch: pov.pitch, zoom: streetView.getZoom() };
+    }
+
+    function headingDiff(a, b) {
+        const d = Math.abs(a - b) % 360;
+        return d > 180 ? 360 - d : d;
+    }
+
+    function povChanged(a, b) {
+        if (!a || !b) return true;
+        return headingDiff(a.heading, b.heading) >= TURN_MIN_DEG
+            || Math.abs(a.pitch - b.pitch) >= TURN_MIN_DEG
+            || Math.abs((a.zoom ?? 1) - (b.zoom ?? 1)) >= 0.3;
+    }
+
+    // A step on the same panorama as the previous one is a camera turn, not a move
+    function isRotationStep(points, i) {
+        return i > 0 && points[i-1].pano === points[i].pano;
+    }
+
+    function onPovChanged() {
+        updateHeadingMarker();
+        if (!currentSession || playbackActive || !autoSaveEnabled) return;
+        // Record the turn once the camera stops moving
+        clearTimeout(povDebounce);
+        povDebounce = setTimeout(evaluateSave, TURN_SETTLE_MS);
+    }
+
+    // Throttled with a timer, not requestAnimationFrame: frames are paused while the
+    // tab is in the background (e.g. opened behind another window by the launcher)
+    function updateHeadingMarker() {
+        if (!currentCone || headingMarkerTimer) return;
+        headingMarkerTimer = setTimeout(() => {
+            headingMarkerTimer = null;
+            currentCone.setIcon(coneIcon(streetView.getPov().heading, streetView.getZoom()));
+        }, 40);
+    }
+
+    // ── Save decision: a different panorama, or the camera turned enough on the same one ──
+    function needsSave() {
+        if (currentPano !== lastSavedPano) return true;
+        return lastSavedPov !== null && povChanged(currentPov(), lastSavedPov);
+    }
+
+    function evaluateSave() {
+        if (!currentSession || playbackActive || !autoSaveEnabled) return;
+        if (currentPano === null) return;
+
+        // Resuming a session: nothing is recorded until the camera is back on its last step
+        if (recordFromPano) {
+            if (currentPano !== recordFromPano) return;
+            recordFromPano = null;
+            clearTimeout(recordFromTimer);
+        }
+        if (!needsSave()) return;
+
+        // Queue save
+        if (saveInProgress) {
+            savePending = true;
+            return;
+        }
+        doSavePoint();
+    }
+
+    // Safety: reset saveInProgress if stuck for too long
+    let saveStartTime = 0;
+    const SAVE_TIMEOUT_MS = 15000;
+
+    async function doSavePoint() {
+        if (saveInProgress) {
+            // Safety: if stuck for more than 15s, force reset
+            if (saveStartTime > 0 && (Date.now() - saveStartTime) > SAVE_TIMEOUT_MS) {
+                console.warn('saveInProgress stuck, force reset');
+                saveInProgress = false;
+            } else {
+                return;
+            }
+        }
+        saveInProgress = true;
+        saveStartTime = Date.now();
+        savePending = false;
+
+        const sessionId = currentSession;
+        const pano = currentPano;
+        const lat = currentLat;
+        const lng = currentLng;
+        const pov = currentPov();
+        const rotation = pano === lastSavedPano;
+
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+
+            // Only the panorama ID and the camera are stored, never the coordinates
+            const res = await fetch('/api/point', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, pano, note: '',
+                                       heading: pov.heading, pitch: pov.pitch, zoom: pov.zoom }),
+                signal: controller.signal
+            });
+            clearTimeout(timeout);
+
+            const data = await res.json();
+
+            if (data.success) {
+                bumpSessionCount(sessionId, 1);
+
+                // The session may have been switched while the request was in flight
+                if (sessionId === currentSession) {
+                    pointsSavedCount++;
+                    lastSavedPano = pano;
+                    lastSavedPov = pov;
+
+                    const pointData = { id: data.id, pano, lat, lng, note: '', timestamp: new Date().toISOString(),
+                                        heading: pov.heading, pitch: pov.pitch, zoom: pov.zoom };
+                    sessionPointsCache.push(pointData);
+
+                    if (!rotation) {
+                        addMarkerToMap(pointData, pointsSavedCount);
+
+                        // Extend polyline
+                        if (polyline2d) {
+                            polyline2d.getPath().push(new google.maps.LatLng(lat, lng));
+                        } else {
+                            polyline2d = new google.maps.Polyline({
+                                path: [{ lat, lng }], geodesic: true,
+                                strokeColor: '#4ade80', strokeOpacity: .8, strokeWeight: 2, map: map2d
+                            });
+                        }
+                    }
+
+                    // Append to sidebar list
+                    appendPointToList(pointData, pointsSavedCount, rotation, true);
+                    document.getElementById('points-count').textContent = pointsSavedCount;
+
+                    console.log(`✓ #${pointsSavedCount} ${rotation ? 'turn' : 'saved'} ${Math.round(pov.heading)}°`);
+                }
+            } else {
+                console.error('Save failed:', data.error);
+                showToast('Save error: ' + (data.error || 'unknown'), 'error', 4000);
+            }
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.error('Save timeout (10s)');
+                showToast('Save timeout — retrying...', 'error', 2000);
+            } else {
+                console.error('Save error:', err);
+            }
+        }
+
+        saveInProgress = false;
+        saveStartTime = 0;
+
+        // Process pending save if the camera moved during save
+        if (savePending && autoSaveEnabled) {
+            savePending = false;
+            evaluateSave();
+        }
+    }
+
+    function markerIcon(note) {
+        return { path: google.maps.SymbolPath.CIRCLE, scale: 12,
+                 fillColor: note ? '#FF8C00' : '#4ade80', fillOpacity: 1,
+                 strokeColor: '#FFF', strokeWeight: 2 };
+    }
+
+    // InfoWindow con tag (o solo numero se senza tag)
+    function markerInfoContent(idx, note) {
+        return note
+            ? `<div style="color:#000;font-size:13px;max-width:200px;"><b>#${idx}</b><br><span style="color:#c65d00;">🏷️ ${escapeHtml(note)}</span></div>`
+            : `<div style="color:#000;font-size:13px;"><b>Step #${idx}</b></div>`;
+    }
+
+    function addMarkerToMap(point, idx) {
+        if (point.lat == null) return;       // position not known (yet)
+        const marker = new google.maps.Marker({
+            position: { lat: point.lat, lng: point.lng }, map: map2d,
+            icon: markerIcon(point.note),
+            label: { text: idx.toString(), color: '#000', fontSize: '11px', fontWeight: 'bold' },
+            zIndex: idx
+        });
+
+        const iw = new google.maps.InfoWindow({ content: markerInfoContent(idx, point.note) });
+
+        marker.addListener('click', () => {
+            if (openInfoWindow) openInfoWindow.close();
+            iw.open(map2d, marker);
+            openInfoWindow = iw;
+        });
+
+        // Auto-show tag on map for tagged points
+        if (point.note) {
+            iw.open(map2d, marker);
+        }
+
+        markers2d.push(marker);
+        infoWindows2d.push(iw);
+        markersById.set(point.id, { marker, iw });
+    }
+
+    function buildPointItem(point, idx, rotation, isLatest = false) {
+        const div = document.createElement('div');
+        div.className = 'point-item' + (rotation ? ' rotation' : '') + (point.note ? ' has-tag' : '') + (isLatest ? ' latest' : '');
+        div.id = `point-${point.id}`;
+        const h = point.heading != null ? Math.round(point.heading) : null;
+        const pitch = point.pitch ? ` / ${Math.round(point.pitch)}°` : '';
+        const where = point.lat != null ? `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`
+                    : panoPositions.get(point.pano) === null ? '<span class="point-lost" title="Google no longer provides this panorama">⚠ panorama unavailable</span>'
+                    : 'locating…';
+        const coords = rotation
+            ? `#${idx} <span class="point-pov" title="Camera turn: heading${pitch ? ' / pitch' : ''}">↻ turn ${h}°${pitch}</span>`
+            : `#${idx} ${where}` + (h != null ? ` <span class="point-pov" title="Camera heading">↻${h}°</span>` : '');
+        div.innerHTML = `
+            <div class="point-left" onclick="goToPoint(${point.id})">
+                <div class="point-coords">${coords}</div>
+                ${point.note ? `<div class="point-tag">🏷️ ${escapeHtml(point.note)}</div>` : ''}
+            </div>
+            <div class="point-actions">
+                <button class="secondary" onclick="openTagModal(${point.id}, ${idx}, event)" title="Edit tag">🏷️</button>
+                <button class="danger" onclick="deletePoint(${point.id}, event)" title="Delete">✕</button>
+            </div>
+        `;
+        return div;
+    }
+
+    function appendPointToList(point, idx, rotation, isLatest = false) {
+        const listDiv = document.getElementById('points-list');
+
+        // Rimuovi latest dal precedente
+        if (isLatest) {
+            const prev = listDiv.querySelector('.point-item.latest');
+            if (prev) prev.classList.remove('latest');
+        }
+
+        listDiv.prepend(buildPointItem(point, idx, rotation, isLatest));
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // ── Camera movement ──
+    function cancelPovAnim() {
+        if (povAnim) cancelAnimationFrame(povAnim);
+        povAnim = null;
+        clearTimeout(povAnimTimer);
+        povAnimTimer = null;
+    }
+
+    // Smoothly turn the camera to the target (shortest way round)
+    function animatePov(target, zoom, duration = 600) {
+        cancelPovAnim();
+        const from = streetView.getPov();
+        const fromZoom = streetView.getZoom();
+        const toZoom = zoom != null ? zoom : fromZoom;
+        const dh = ((target.heading - from.heading + 540) % 360) - 180;
+        const dp = target.pitch - from.pitch;
+        const t0 = performance.now();
+        const finish = () => {
+            cancelPovAnim();
+            streetView.setPov(target);
+            if (toZoom !== fromZoom) streetView.setZoom(toZoom);
+        };
+        const step = now => {
+            const t = Math.min(1, (now - t0) / duration);
+            const e = t < .5 ? 2*t*t : -1 + (4 - 2*t)*t;   // ease in-out
+            streetView.setPov({ heading: from.heading + dh * e, pitch: from.pitch + dp * e });
+            if (toZoom !== fromZoom) streetView.setZoom(fromZoom + (toZoom - fromZoom) * e);
+            if (t < 1) povAnim = requestAnimationFrame(step); else finish();
+        };
+        povAnim = requestAnimationFrame(step);
+        // Hidden tab: frames are paused, make sure the camera still lands on the target
+        povAnimTimer = setTimeout(finish, duration + 100);
+    }
+
+    // Move Street View and the map to a step: the very same panorama it was recorded on.
+    // animate = tween the camera turn (playback). Returns false if the panorama is gone
+    function moveCameraTo(p, animate) {
+        if (!streetView) return false;
+        if (panoPositions.get(p.pano) === null) {
+            showToast('Google no longer provides this panorama', 'error', 2500);
+            return false;
+        }
+        gotoSeq++;                           // a pending map-click / search lookup must not override this
+        if (streetView.getPano() !== p.pano) {
+            travelTo = p.pano;
+            clearTimeout(travelTimer);
+            travelTimer = setTimeout(() => { travelTo = null; updateStreetViewOverlay(); }, 5000);
+            streetView.setPano(p.pano);
+        }
+        if (map2d && p.lat != null) map2d.panTo({ lat: p.lat, lng: p.lng });
+        if (p.heading == null) return true;
+        const target = { heading: p.heading, pitch: p.pitch ?? 0 };
+        if (animate) {
+            animatePov(target, p.zoom);
+        } else {
+            cancelPovAnim();
+            streetView.setPov(target);
+            if (p.zoom != null) streetView.setZoom(p.zoom);
+        }
+        return true;
+    }
+
+    function goToPoint(pointId) {
+        const i = sessionPointsCache.findIndex(p => p.id === pointId);
+        if (i === -1) return;
+        if (playbackActive) {                // in playback the row click selects that step
+            playbackIndex = i;
+            showPlaybackPoint();
+            return;
+        }
+        focusedPointId = pointId;
+        moveCameraTo(sessionPointsCache[i], false);
+        updateStreetViewOverlay();
+    }
+
+    // Jump Street View and map to the last step of the current session (panorama + camera)
+    function focusLastPoint() {
+        if (!sessionPointsCache.length) return;
+        moveCameraTo(sessionPointsCache[sessionPointsCache.length - 1], false);
+    }
+
+    // ── Tag Modal ──
+    function openTagModal(pointId, idx, event) {
+        if (event) event.stopPropagation();
+        tagEditPointId = pointId;
+        tagEditIndex = idx;
+        document.getElementById('tag-modal-idx').textContent = idx;
+        const cached = sessionPointsCache.find(p => p.id === pointId);
+        document.getElementById('tag-modal-text').value = cached ? (cached.note || '') : '';
+        document.getElementById('tag-modal').classList.add('open');
+        document.getElementById('tag-modal-text').focus();
+    }
+
+    function closeTagModal() {
+        document.getElementById('tag-modal').classList.remove('open');
+        tagEditPointId = null;
+    }
+
+    async function saveTag() {
+        if (!tagEditPointId) return;
+        const note = document.getElementById('tag-modal-text').value.trim();
+        const pointId = tagEditPointId;
+        const pointIdx = tagEditIndex;
+
+        console.log(`Saving tag for point ${pointId} (index ${pointIdx}): "${note}"`);
+
+        try {
+            const res = await fetch(`/api/point/${pointId}/note`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note })
+            });
+
+            const text = await res.text();
+            console.log(`Tag save response: ${res.status} - ${text}`);
+
+            if (!res.ok) {
+                showToast(`Error ${res.status}: ${text.substring(0, 100)}`, 'error', 5000);
+                return;
+            }
+
+            let data;
+            try { data = JSON.parse(text); } catch(e) {
+                showToast('Invalid response from server', 'error');
+                return;
+            }
+
+            if (!data.success) {
+                showToast(data.error || 'Error saving tag', 'error', 5000);
+                return;
+            }
+
+            console.log('Tag saved successfully');
+            showToast(`Tag saved on step #${pointIdx}`, 'success', 2000);
+            closeTagModal();
+            applyTag(pointId, note);
+
+        } catch (err) {
+            console.error('Tag save network error:', err);
+            showToast('Network error: ' + err.message, 'error');
+        }
+    }
+
+    // Update a step's tag in place (cache, list item, marker) without reloading the session
+    function applyTag(pointId, note) {
+        const i = sessionPointsCache.findIndex(p => p.id === pointId);
+        if (i === -1) return;
+        const point = sessionPointsCache[i];
+        point.note = note;
+
+        const el = document.getElementById(`point-${pointId}`);
+        if (el) {
+            const fresh = buildPointItem(point, i + 1, isRotationStep(sessionPointsCache, i), el.classList.contains('latest'));
+            if (el.classList.contains('playback-active')) fresh.classList.add('playback-active');
+            el.replaceWith(fresh);
+        }
+
+        const m = markersById.get(pointId);
+        if (m) {
+            m.marker.setIcon(markerIcon(note));
+            m.iw.setContent(markerInfoContent(i + 1, note));
+            if (note) m.iw.open(map2d, m.marker);
+            else m.iw.close();
+        }
+
+        if (playbackActive) updatePlaybackUI();
+        else updateStreetViewOverlay();
+    }
+
+    // ── Delete single step ──
+    async function deletePoint(pointId, event) {
+        if (event) event.stopPropagation();
+        if (!await confirmDialog('Delete this step?')) return;
+        const sessionId = currentSession;
+        try {
+            const res = await fetch(`/api/point/${pointId}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!data.success) {
+                showToast(data.error || 'Error deleting step', 'error');
+                return;
+            }
+            showToast('Step deleted', 'success', 2000);
+            bumpSessionCount(sessionId, -1);
+
+            const i = sessionPointsCache.findIndex(p => p.id === pointId);
+            if (i === -1) return;
+            sessionPointsCache.splice(i, 1);
+            renderSessionPoints(false);
+
+            if (playbackActive) {
+                if (!sessionPointsCache.length) { stopPlayback(); return; }
+                if (i < playbackIndex) playbackIndex--;
+                playbackIndex = Math.min(playbackIndex, sessionPointsCache.length - 1);
+                showPlaybackPoint();
+            }
+        } catch(e) {
+            showToast('Error deleting step', 'error');
+        }
+    }
+
+    // ── Rec indicator ──
+    function updateRecIndicator() {
+        const el = document.getElementById('rec-indicator');
+        el.style.display = (currentSession && autoSaveEnabled && !playbackActive) ? 'block' : 'none';
+    }
+
+    // ── Load the steps of a session (panorama IDs, camera, tags) ──
+    async function loadSessionPoints(sessionId) {
+        try {
+            const res = await fetch(`/api/session/${sessionId}/points`);
+            const points = await res.json();
+            // Another session was selected while this one was loading
+            if (sessionId !== currentSession) return;
+            sessionPointsCache = points;
+            hydratePositions();              // panoramas already seen in this page
+            renderSessionPoints();
+        } catch (err) {
+            console.error('Error loading points:', err);
+        }
+    }
+
+    // Rebuild steps list and map from the local cache (no server round trip)
+    function renderSessionPoints(recenter = true) {
+        const points = sessionPointsCache;
+        const last = points[points.length - 1];
+        pointsSavedCount = points.length;
+        lastSavedPano = last ? last.pano : null;
+        lastSavedPov = last && last.heading != null ? { heading: last.heading, pitch: last.pitch ?? 0, zoom: last.zoom } : null;
+
+        // List (latest first)
+        const frag = document.createDocumentFragment();
+        for (let i = points.length - 1; i >= 0; i--) {
+            frag.appendChild(buildPointItem(points[i], i + 1, isRotationStep(points, i), i === points.length - 1));
+        }
+        document.getElementById('points-list').replaceChildren(frag);
+        document.getElementById('points-count').textContent = points.length;
+
+        rebuildMap2D(points, recenter);
+        updateStreetViewOverlay();
+    }
+
+    function rebuildMap2D(points, recenter = true) {
+        if (!map2d) return;
+        clearMap2D();
+
+        // Camera turns share the panorama of the previous step: no marker, no path segment.
+        // Steps whose position is not known (yet) are left out
+        const path = [];
+        points.forEach((p, i) => {
+            if (p.lat == null || isRotationStep(points, i)) return;
+            addMarkerToMap(p, i + 1);
+            path.push({ lat: p.lat, lng: p.lng });
+        });
+        if (!path.length) return;
+
+        polyline2d = new google.maps.Polyline({
+            path, geodesic: true, strokeColor: '#4ade80',
+            strokeOpacity: .8, strokeWeight: 2, map: map2d
+        });
+
+        if (recenter) map2d.setCenter(path[path.length - 1]);
+    }
+
+    function clearMap2D() {
+        markers2d.forEach(m => m.setMap(null));
+        markers2d = [];
+        markersById = new Map();
+        infoWindows2d.forEach(iw => iw.close());
+        infoWindows2d = [];
+        openInfoWindow = null;
+        if (polyline2d) { polyline2d.setMap(null); polyline2d = null; }
+    }
+
+    // ── API Key ──
+    async function loadApiKey() {
+        try {
+            const res = await fetch('/api/key');
+            const data = await res.json();
+            apiKey = data.key || '';
+            document.getElementById('api-key-input').value = apiKey;
+            return true;
+        } catch(e) {
+            console.error('Error loading key:', e);
+            return false;
+        }
+    }
+
+    async function saveApiKey() {
+        const key = document.getElementById('api-key-input').value.trim();
+        try {
+            const res = await fetch('/api/key', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key })
+            });
+            if (!res.ok) { showToast('Error saving API key', 'error'); return; }
+            apiKey = key;
+            // Maps already loaded with the previous key: only a reload can swap it
+            if (mapsRequested) { location.reload(); return; }
+            showToast('API key saved', 'success', 2000);
+            if (key) {
+                document.getElementById('api-key-section').open = false;
+                loadGoogleMapsAPI();
+            }
+        } catch(e) { showToast('Error saving API key', 'error'); }
+    }
+
+    function toggleApiKeyVisibility() {
+        const inp = document.getElementById('api-key-input');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── Search ──
+    function searchLocation() {
+        const addr = document.getElementById('search-input').value.trim();
+        if (!addr) return;
+        if (!geocoder) { showToast('Maps not loaded yet', 'error'); return; }
+        geocoder.geocode({ address: addr }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                const loc = results[0].geometry.location;
+                gotoLocation(loc);
+                map2d.setCenter(loc);
+            } else {
+                showToast('Location not found: ' + status, 'error');
+            }
+        });
+    }
+
+    // ── Sessions ──
+    async function loadSessions() {
+        try {
+            const res = await fetch('/api/sessions');
+            sessionsCache = await res.json();
+            renderSessions();
+            return true;
+        } catch(e) {
+            console.error('Sessions error:', e);
+            return false;
+        }
+    }
+
+    function renderSessions() {
+        const frag = document.createDocumentFragment();
+        sessionsCache.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'session-item' + (currentSession === s.id ? ' active' : '');
+            div.id = `session-${s.id}`;
+            div.innerHTML = `
+                <div class="session-info" onclick="selectSession(${s.id})">
+                    <div class="session-name">${escapeHtml(s.name)}</div>
+                    <div class="session-points">${s.point_count} steps</div>
+                </div>
+                <button class="delete-btn danger" onclick="deleteSession(${s.id}, event)">✕</button>
+            `;
+            frag.appendChild(div);
+        });
+        document.getElementById('session-list').replaceChildren(frag);
+    }
+
+    // Keep the step counter of a session in sync without reloading the list
+    function bumpSessionCount(sessionId, delta) {
+        const s = sessionsCache.find(s => s.id === sessionId);
+        if (!s) return;
+        s.point_count += delta;
+        const el = document.querySelector(`#session-${sessionId} .session-points`);
+        if (el) el.textContent = `${s.point_count} steps`;
+    }
+
+    async function createSession() {
+        const name = document.getElementById('session-name-input').value.trim();
+        if (!name) return;
+        try {
+            const res = await fetch('/api/session', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('session-name-input').value = '';
+                sessionsCache.unshift({ id: data.id, name, point_count: 0 });
+                selectSession(data.id);
+            }
+        } catch(e) { showToast('Error creating session', 'error'); }
+    }
+
+    function resetRecordingState() {
+        autoSaveEnabled = false;
+        clearTimeout(povDebounce);
+        recordFromPano = null;
+        clearTimeout(recordFromTimer);
+    }
+
+    async function selectSession(sessionId) {
+        if (playbackActive) stopPlayback();
+        resetRecordingState();
+        cancelPovAnim();
+
+        currentSession = sessionId;
+        pointsSavedCount = 0;
+        lastSavedPano = null;
+        lastSavedPov = null;
+        sessionPointsCache = [];
+        focusedPointId = null;
+        setLocating('');
+
+        // Switch the UI right away (idle state: Start Rec visible, Stop hidden), steps follow
+        renderSessions();
+        setVisible('start-rec-btn', true);
+        setVisible('stop-recording-btn', false);
+        setVisible('points-section', true);
+        setVisible('session-controls', true);
+        setVisible('playback-controls', false);
+        updateRecIndicator();
+
+        // Close sidebar on mobile
+        document.getElementById('sidebar').classList.remove('open');
+
+        await loadSessionPoints(sessionId);
+        if (sessionId !== currentSession) return;
+
+        // Go to the last step (by panorama ID: no coordinates needed), then locate the route on the map
+        focusLastPoint();
+        await resolvePositions(sessionId);
+    }
+
+    async function deleteSession(sessionId, event) {
+        event.stopPropagation();
+        const session = sessionsCache.find(s => s.id === sessionId);
+        if (!await confirmDialog(`Delete session "${session ? session.name : sessionId}" and all its steps?`)) return;
+        try {
+            const res = await fetch(`/api/session/${sessionId}`, { method: 'DELETE' });
+            if (res.ok) {
+                if (currentSession === sessionId) {
+                    if (playbackActive) stopPlayback();
+                    resetRecordingState();
+                    currentSession = null;
+                    sessionPointsCache = [];
+                    updateRecIndicator();
+                    setVisible('session-controls', false);
+                    setVisible('points-section', false);
+                    clearMap2D();
+                    updateStreetViewOverlay();
+                }
+                sessionsCache = sessionsCache.filter(s => s.id !== sessionId);
+                renderSessions();
+            }
+        } catch(e) { showToast('Error deleting session', 'error'); }
+    }
+
+    // ── Recording controls ──
+    function startRecording() {
+        if (!currentSession) return;
+        if (!streetView) { showToast('Maps not loaded yet', 'error'); return; }
+
+        // Existing session: go back to its last step (panorama and camera) and resume from
+        // there; nothing is recorded on the way. New session: the current view is step #1
+        const last = sessionPointsCache[sessionPointsCache.length - 1];
+        recordFromPano = null;
+        clearTimeout(recordFromTimer);
+        if (last && moveCameraTo(last, false) && currentPano !== last.pano) {
+            recordFromPano = last.pano;
+            recordFromTimer = setTimeout(() => { recordFromPano = null; }, 6000);
+        }
+
+        autoSaveEnabled = true;
+        updateRecIndicator();
+
+        setVisible('start-rec-btn', false);
+        setVisible('stop-recording-btn', true);
+
+        showToast('Recording started', 'success', 2000);
+        evaluateSave();
+    }
+
+    function stopRecording() {
+        if (!currentSession) return;
+        resetRecordingState();
+        updateRecIndicator();
+
+        setVisible('stop-recording-btn', false);
+        setVisible('start-rec-btn', true);
+
+        showToast('Recording stopped', 'info', 2000);
+    }
+
+    // ── Playback (runs on the local steps cache) ──
+    function startPlayback() {
+        if (!currentSession) return;
+        if (!streetView) { showToast('Maps not loaded yet', 'error'); return; }
+        stopAutoPlay();
+        if (sessionPointsCache.length === 0) { showToast('No steps to play', 'info'); return; }
+        playbackActive = true;
+        resetRecordingState();
+        updateRecIndicator();
+        playbackIndex = 0;
+        setVisible('playback-controls', true);
+        setVisible('session-controls', false);
+        showPlaybackPoint();
+    }
+
+    function showPlaybackPoint() {
+        const p = sessionPointsCache[playbackIndex];
+        if (!p) return;
+        moveCameraTo(p, true);
+        updatePlaybackUI();
+    }
+
+    function updatePlaybackUI() {
+        const p = sessionPointsCache[playbackIndex];
+        if (!p) return;
+        document.getElementById('playback-info').textContent = `Step ${playbackIndex+1} / ${sessionPointsCache.length}`;
+
+        // Highlight corresponding step in sidebar list
+        document.querySelectorAll('#points-list .point-item.playback-active').forEach(el => el.classList.remove('playback-active'));
+        const pointEl = document.getElementById(`point-${p.id}`);
+        if (pointEl) {
+            pointEl.classList.add('playback-active');
+            pointEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Show step number + tag on Street View overlay
+        const svOverlay = document.getElementById('sv-point-overlay');
+        document.getElementById('sv-point-num').textContent = `📍 Step #${playbackIndex + 1}`;
+        const tagEl = document.getElementById('sv-point-tag');
+        if (p.note && p.note.trim()) {
+            tagEl.textContent = '🏷️ ' + p.note;
+            tagEl.style.display = 'block';
+        } else {
+            tagEl.style.display = 'none';
+        }
+        svOverlay.style.display = 'block';
+
+        // Show note overlay (big banner) for tagged steps
+        const no = document.getElementById('note-overlay');
+        if (p.note && p.note.trim()) {
+            document.getElementById('note-content').textContent = p.note;
+            no.style.display = 'block';
+        } else {
+            no.style.display = 'none';
+        }
+    }
+
+    function playbackNext() {
+        if (playbackIndex < sessionPointsCache.length-1) {
+            playbackIndex++;
+            showPlaybackPoint();
+        } else if (autoPlaying) {
+            // Reached end, stop auto-play
+            stopAutoPlay();
+            showToast('Playback finished', 'info', 2000);
+        }
+    }
+    function playbackPrevious() { if (playbackIndex > 0) { playbackIndex--; showPlaybackPoint(); } }
+
+    // ── Auto-play ──
+    function toggleAutoPlay() {
+        if (autoPlaying) {
+            stopAutoPlay();
+        } else {
+            startAutoPlay();
+        }
+    }
+
+    // Also called while playing to apply a new speed
+    function startAutoPlay() {
+        if (!playbackActive || sessionPointsCache.length === 0) return;
+        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        autoPlaying = true;
+        const speed = parseInt(document.getElementById('autoplay-speed').value) || 2000;
+        const btn = document.getElementById('autoplay-btn');
+        btn.textContent = '⏸ Pause';
+        btn.classList.add('danger');
+
+        autoPlayInterval = setInterval(playbackNext, speed);
+    }
+
+    function stopAutoPlay() {
+        autoPlaying = false;
+        if (autoPlayInterval) { clearInterval(autoPlayInterval); autoPlayInterval = null; }
+        const btn = document.getElementById('autoplay-btn');
+        btn.textContent = '▶▶ Auto Play';
+        btn.classList.remove('danger');
+    }
+
+    function stopPlayback() {
+        stopAutoPlay();
+        cancelPovAnim();
+        playbackActive = false;
+        setVisible('playback-controls', false);
+        setVisible('session-controls', true);
+        document.getElementById('note-overlay').style.display = 'none';
+        // Remove playback highlight from sidebar
+        document.querySelectorAll('#points-list .point-item.playback-active').forEach(el => el.classList.remove('playback-active'));
+        // Return to idle state (not recording)
+        resetRecordingState();
+        updateRecIndicator();
+        setVisible('start-rec-btn', true);
+        setVisible('stop-recording-btn', false);
+        updateStreetViewOverlay();
+    }
+
+    // ── Keyboard shortcuts ──
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            if (confirmResolve) closeConfirm(false);
+            else { closeTagModal(); closeLegal(); }
+            return;
+        }
+
+        // Left/Right step the playback, unless a field or the maps (which use the arrows themselves) have focus
+        if (!playbackActive || document.querySelector('.modal.open')) return;
+        if (e.target.closest('input, textarea, select, #main-content')) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); playbackNext(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); playbackPrevious(); }
+    });
+
+    // ── Start ──
+    init();
+</script>
+</body>
+</html>
